@@ -10,18 +10,22 @@ import { Select } from "@/components/Select";
 import { Badge } from "@/components/Badge";
 import {
   PillarPie,
-  TargetBars,
+  BudgetBars,
+  IncomeFlow,
   SubBars,
   TrendLine,
 } from "@/components/DashboardCharts";
 import { useStore } from "@/lib/store";
-import { PILLARS } from "@/lib/taxonomy";
+import { SPENDING_PILLARS } from "@/lib/taxonomy";
 import {
   filterTx,
   totalSpent,
   spentByPillar,
   spentBySub,
   incomeInRange,
+  budgetBreakdown,
+  totalTransfers,
+  totalInvested,
   monthlyTrend,
   type DateRange,
 } from "@/lib/selectors";
@@ -42,7 +46,6 @@ function DashboardView() {
   const months = useStore((s) => s.months);
   const detectedIncome = useStore((s) => s.detectedIncome);
   const incomeOverrides = useStore((s) => s.incomeOverrides);
-  const targets = useStore((s) => s.targets);
 
   const [rangeMode, setRangeMode] = useState<string>("all");
   const [start, setStart] = useState("");
@@ -59,6 +62,9 @@ function DashboardView() {
   const byPillar = spentByPillar(filtered);
   const subRows = spentBySub(filtered);
   const income = incomeInRange(detectedIncome, incomeOverrides, months, range);
+  const { rows: budgetRows, savings, savingsRate } = budgetBreakdown(filtered, income);
+  const transfers = totalTransfers(filtered);
+  const invested = totalInvested(filtered);
   const trend = monthlyTrend(transactions, months, detectedIncome, incomeOverrides);
 
   if (transactions.length === 0) {
@@ -75,12 +81,7 @@ function DashboardView() {
     );
   }
 
-  const pieData = PILLARS.map((p) => ({ pillar: p, amount: byPillar[p] }));
-  const targetData = PILLARS.map((p) => ({
-    pillar: p,
-    actual: spent > 0 ? byPillar[p] / spent : 0,
-    target: targets[p],
-  }));
+  const pieData = SPENDING_PILLARS.map((p) => ({ pillar: p, amount: byPillar[p] }));
 
   return (
     <div className="grid gap-5">
@@ -117,60 +118,89 @@ function DashboardView() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-4">
         <SummaryCard label="Income" value={income} accent="var(--color-positive)" />
         <SummaryCard label="Spent" value={spent} accent="var(--color-negative)" />
-        <SummaryCard
-          label="Remaining"
-          value={income - spent}
-          accent="var(--color-ink-deep)"
-        />
+        <SummaryCard label="Saved" value={savings} accent="var(--color-ink-deep)" />
+        <Card>
+          <CardBody>
+            <CardTitle>Savings rate</CardTitle>
+            <p
+              className="tabular mt-2 text-3xl font-black"
+              style={{ color: savingsRate >= 0.2 ? "var(--color-positive)" : "var(--color-warning-deep)" }}
+            >
+              {income > 0 ? formatPct(savingsRate, 0) : "—"}
+            </p>
+            <p className="mt-1 text-xs text-mute">target ≥ 20% of income</p>
+          </CardBody>
+        </Card>
       </div>
 
-      {/* Pillar breakdown table */}
+      {/* Where your income went (flow) */}
       <Card>
         <CardBody>
-          <CardTitle>Pillar breakdown vs target</CardTitle>
+          <CardTitle>Where your income went</CardTitle>
+          <div className="mt-2">
+            <IncomeFlow
+              income={income}
+              needs={byPillar["Fixed Needs"]}
+              wants={byPillar["Variable Wants"]}
+              saved={savings}
+            />
+          </div>
+          {transfers > 0 && (
+            <p className="mt-1 text-xs text-mute">
+              Excludes {formatSGD(transfers)} in transfers
+              {invested > 0 ? ` (${formatSGD(invested)} to savings/investments)` : ""} —
+              these are money moved, not spent.
+            </p>
+          )}
+        </CardBody>
+      </Card>
+
+      {/* 50/30/20 budget table */}
+      <Card>
+        <CardBody>
+          <CardTitle>50 / 30 / 20 — share of income</CardTitle>
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase tracking-wide text-mute">
-                  <th className="py-2">Pillar</th>
-                  <th className="py-2 text-right">Spent</th>
+                  <th className="py-2">Bucket</th>
+                  <th className="py-2 text-right">Amount</th>
                   <th className="py-2 text-right">Actual %</th>
                   <th className="py-2 text-right">Target %</th>
                   <th className="py-2 text-right">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {PILLARS.map((p) => {
-                  const actual = spent > 0 ? byPillar[p] / spent : 0;
-                  const target = targets[p];
-                  const ok =
-                    p === "Future Savings" ? actual >= target : actual <= target;
-                  return (
-                    <tr key={p} className="border-t border-hairline/60">
-                      <td className="py-2 font-medium">{p}</td>
-                      <td className="py-2 text-right tabular">{formatSGD(byPillar[p])}</td>
-                      <td className="py-2 text-right tabular">{formatPct(actual)}</td>
-                      <td className="py-2 text-right tabular text-mute">
-                        {formatPct(target, 0)}
-                      </td>
-                      <td className="py-2 text-right">
-                        <Badge tone={ok ? "positive" : "negative"}>
-                          {ok
-                            ? "On track"
-                            : p === "Future Savings"
-                            ? "Below target"
-                            : "Over budget"}
-                        </Badge>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {budgetRows.map((r) => (
+                  <tr key={r.bucket} className="border-t border-hairline/60">
+                    <td className="py-2 font-medium">{r.bucket}</td>
+                    <td className="py-2 text-right tabular">{formatSGD(r.amount)}</td>
+                    <td className="py-2 text-right tabular">
+                      {income > 0 ? formatPct(r.actual) : "—"}
+                    </td>
+                    <td className="py-2 text-right tabular text-mute">
+                      {r.bucket === "Savings" ? "≥ " : "≤ "}
+                      {formatPct(r.target, 0)}
+                    </td>
+                    <td className="py-2 text-right">
+                      <Badge tone={r.onTrack ? "positive" : "negative"}>
+                        {r.onTrack ? "On track" : r.bucket === "Savings" ? "Below target" : "Over budget"}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
+          {income === 0 && (
+            <p className="mt-2 text-xs text-warning-deep">
+              No income detected for this range — set it on the Settings tab so the
+              percentages and savings rate are meaningful.
+            </p>
+          )}
         </CardBody>
       </Card>
 
@@ -178,7 +208,7 @@ function DashboardView() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardBody>
-            <CardTitle>Spend by pillar</CardTitle>
+            <CardTitle>Spending: Needs vs Wants</CardTitle>
             <div className="mt-2">
               <PillarPie data={pieData} />
             </div>
@@ -186,15 +216,15 @@ function DashboardView() {
         </Card>
         <Card>
           <CardBody>
-            <CardTitle>Actual % vs target %</CardTitle>
+            <CardTitle>Actual vs target (% of income)</CardTitle>
             <div className="mt-2">
-              <TargetBars data={targetData} />
+              <BudgetBars data={budgetRows} />
             </div>
           </CardBody>
         </Card>
         <Card>
           <CardBody>
-            <CardTitle>Spend by sub-category</CardTitle>
+            <CardTitle>Spending by sub-category</CardTitle>
             <div className="mt-2">
               <SubBars data={subRows} />
             </div>
@@ -202,7 +232,7 @@ function DashboardView() {
         </Card>
         <Card>
           <CardBody>
-            <CardTitle>Monthly trend (all months)</CardTitle>
+            <CardTitle>Monthly trend (income · spent · saved)</CardTitle>
             <div className="mt-2">
               <TrendLine data={trend} />
             </div>
@@ -226,10 +256,7 @@ function SummaryCard({
     <Card>
       <CardBody>
         <CardTitle>{label}</CardTitle>
-        <p
-          className="tabular mt-2 text-3xl font-black"
-          style={{ color: accent }}
-        >
+        <p className="tabular mt-2 text-3xl font-black" style={{ color: accent }}>
           {formatSGD(value)}
         </p>
       </CardBody>

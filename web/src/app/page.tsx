@@ -108,6 +108,13 @@ function ImportView() {
             <div className="text-sm text-body">
               Detected income:{" "}
               <strong className="tabular">{formatSGD(summary.stats.income)}</strong>
+              {summary.stats.transfers > 0 && (
+                <>
+                  {" · "}
+                  {summary.stats.transfers} transfer
+                  {summary.stats.transfers === 1 ? "" : "s"} excluded from spending
+                </>
+              )}
             </div>
             <div className="flex flex-wrap gap-3">
               <Button onClick={() => router.push("/review")}>

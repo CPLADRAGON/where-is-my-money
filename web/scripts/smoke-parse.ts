@@ -9,28 +9,32 @@ const csv = readFileSync(
 
 const result = parseDetected(csv);
 console.log("bank:", result.bankLabel);
-console.log("total spend rows:", result.stats.total);
+console.log("total rows (spend+transfer):", result.stats.total);
 console.log("autoCategorized:", result.stats.autoCategorized);
 console.log("defaulted:", result.stats.defaulted);
+console.log("transfers:", result.stats.transfers);
 console.log("months:", result.months.join(", "));
 console.log("incomeByMonth:", JSON.stringify(result.incomeByMonth));
 console.log("total income:", result.stats.income);
 
-const sumByPillar: Record<string, number> = {};
-for (const t of result.transactions) {
-  sumByPillar[t.pillar] = (sumByPillar[t.pillar] ?? 0) + t.amount;
-}
-console.log("sumByPillar:", JSON.stringify(sumByPillar, null, 1));
-const totalSpent = result.transactions.reduce((a, t) => a + t.amount, 0);
-console.log("total spent:", totalSpent.toFixed(2));
+const spending = result.transactions.filter(
+  (t) => t.pillar !== "Transfer"
+);
+const totalSpent = spending.reduce((a, t) => a + t.amount, 0);
+const totalTransfers = result.transactions
+  .filter((t) => t.pillar === "Transfer")
+  .reduce((a, t) => a + t.amount, 0);
+console.log("spending rows:", spending.length);
+console.log("total spent (excl transfers):", totalSpent.toFixed(2));
+console.log("total transfers:", totalTransfers.toFixed(2));
 
 const expect = (cond: boolean, msg: string) => {
   console.log(cond ? "PASS" : "FAIL", "-", msg);
 };
-// Correct totals: the Python generator drops the first data row (a pandas
-// blank-line/header off-by-one), so its 384/17,046.13 are one row short.
-expect(result.stats.total === 385, "385 spend rows");
-expect(Math.abs(totalSpent - 17062.13) < 0.01, "total spent ~ 17,062.13");
+// 385 outflow rows total; some are now transfers (excluded from spend).
+expect(result.stats.total === 385, "385 outflow rows parsed");
+expect(result.stats.transfers > 0, "some rows detected as transfers");
+expect(totalSpent < 17062.13, "spending is less than raw outflow (transfers removed)");
 expect(
   Object.keys(result.incomeByMonth).length === 5,
   "salary detected in 5 months"

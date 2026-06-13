@@ -1,6 +1,6 @@
 import { categorize, merchantKeyFrom } from "../categorize";
 import type { Pillar } from "../taxonomy";
-import { isValidPair } from "../taxonomy";
+import { isValidPair, isSpending } from "../taxonomy";
 import type { ParseResult, Transaction } from "../types";
 import { ocbcAdapter } from "./ocbc";
 import { parseWithMapping } from "./generic";
@@ -46,6 +46,7 @@ export function buildParseResult(
   const seen = new Map<string, number>();
 
   let defaulted = 0;
+  let transfers = 0;
 
   for (const row of rawRows) {
     const month = row.date.slice(0, 7);
@@ -85,6 +86,7 @@ export function buildParseResult(
     }
 
     if (result.provenance === "default") defaulted++;
+    if (!isSpending(result.pillar)) transfers++;
 
     transactions.push({
       id,
@@ -114,6 +116,7 @@ export function buildParseResult(
       total: transactions.length,
       autoCategorized: transactions.length - defaulted,
       defaulted,
+      transfers,
       income,
     },
   };

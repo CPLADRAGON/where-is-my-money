@@ -1,14 +1,26 @@
 /**
- * The canonical 3-bucket taxonomy and budget targets.
- * Mirrors the Python generator (build_tracker.py) — keep names in sync.
+ * Spending taxonomy + budget model.
+ *
+ * Money is split by TRANSACTION TYPE, not by a single "category" axis:
+ *   - spending  -> categorized into Fixed Needs / Variable Wants
+ *   - transfer  -> money moved to savings/investments or to people; NOT spending
+ *   - income    -> handled separately (incomeByMonth)
+ *
+ * Savings is an OUTCOME (Income - Spending), shown as a Savings Rate — it is not
+ * a spending pillar. The 50/30/20 rule is evaluated as a share of INCOME.
+ *
+ * Keep names in sync with the Python generator where they overlap.
  */
 
-export const PILLARS = [
-  "Fixed Needs",
-  "Variable Wants",
-  "Future Savings",
-] as const;
+// Spending pillars (the only ones that count toward "spent").
+export const SPENDING_PILLARS = ["Fixed Needs", "Variable Wants"] as const;
+export type SpendingPillar = (typeof SPENDING_PILLARS)[number];
 
+// The transfer "pillar" replaces the old "Future Savings" spend bucket.
+export const TRANSFER_PILLAR = "Transfer" as const;
+
+// All pillars selectable in the category dropdown.
+export const PILLARS = [...SPENDING_PILLARS, TRANSFER_PILLAR] as const;
 export type Pillar = (typeof PILLARS)[number];
 
 export const CATEGORIES: Record<Pillar, string[]> = {
@@ -26,26 +38,66 @@ export const CATEGORIES: Record<Pillar, string[]> = {
     "Shopping",
     "Travel",
   ],
-  "Future Savings": ["Emergency Fund", "Investments", "General Savings"],
+  Transfer: [
+    "Savings / Investment",
+    "Personal Transfer",
+    "Reimbursement",
+    "Other Transfer",
+  ],
 };
 
-export const TARGETS: Record<Pillar, number> = {
-  "Fixed Needs": 0.5,
-  "Variable Wants": 0.3,
-  "Future Savings": 0.2,
+export function isSpending(pillar: Pillar): boolean {
+  return pillar !== TRANSFER_PILLAR;
+}
+
+/** Budget buckets for the 50/30/20 view (share of income). */
+export const BUDGET_BUCKETS = ["Needs", "Wants", "Savings"] as const;
+export type BudgetBucket = (typeof BUDGET_BUCKETS)[number];
+
+export const TARGETS: Record<BudgetBucket, number> = {
+  Needs: 0.5,
+  Wants: 0.3,
+  Savings: 0.2,
 };
 
-/** Fallback for transactions no rule matches. */
+/** Map a spending pillar to its budget bucket (transfers have none). */
+export function pillarToBucket(pillar: Pillar): BudgetBucket | null {
+  if (pillar === "Fixed Needs") return "Needs";
+  if (pillar === "Variable Wants") return "Wants";
+  return null;
+}
+
+/** Fallback for unmatched purchases (kept as spending so it's reviewed). */
 export const DEFAULT_CATEGORY: { pillar: Pillar; sub: string } = {
   pillar: "Variable Wants",
   sub: "Shopping",
 };
 
-/** Brand colors per pillar (kept aligned with globals.css theme tokens). */
+/** Default category for detected personal/P2P transfers. */
+export const TRANSFER_DEFAULT: { pillar: Pillar; sub: string } = {
+  pillar: "Transfer",
+  sub: "Personal Transfer",
+};
+
+/** Default category for detected savings/investment moves. */
+export const SAVINGS_DEFAULT: { pillar: Pillar; sub: string } = {
+  pillar: "Transfer",
+  sub: "Savings / Investment",
+};
+
+/** Colors for budget buckets + the transfer pillar. */
+export const BUCKET_COLORS: Record<BudgetBucket, string> = {
+  Needs: "#264653",
+  Wants: "#E9C46A",
+  Savings: "#2A9D8F",
+};
+export const TRANSFER_COLOR = "#8a8f98";
+
+/** Colors per spending pillar (for pie/sub-category charts). */
 export const PILLAR_COLORS: Record<Pillar, string> = {
-  "Fixed Needs": "#163300",
-  "Variable Wants": "#ffd11a",
-  "Future Savings": "#2ead4b",
+  "Fixed Needs": "#264653",
+  "Variable Wants": "#E9C46A",
+  Transfer: TRANSFER_COLOR,
 };
 
 export function subCategoriesFor(pillar: Pillar): string[] {

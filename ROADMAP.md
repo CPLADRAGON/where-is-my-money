@@ -83,9 +83,14 @@ broken.
 
 **Effort:** M–L (data model + new charts + review UI for types).
 **Dependencies:** Product decision on the category model (A/B/C). Pairs with #6.
-**Status:** ⚠️ Needs your sign-off — I recommended the default above; the
-trade-off question (drop savings pillar + add Savings Rate, vs keep a
-transfer-only savings bucket) was left for you to confirm.
+**Status:** ✅ **DONE in the web app** (`web/`). Implemented the recommended default:
+dropped "Future Savings" as a spend pillar; added a **Transfer** type (savings/
+investment + P2P, auto-detected, excluded from spending and editable in Review);
+**50/30/20 now computed as a share of income** with **Savings = Income − Spending**;
+added Savings-Rate card + a **"Where your income went"** flow bar. Result on the
+sample data: 77 rows reclassified as transfers and "need review" dropped 135 → 58.
+The **Python generator (`build_tracker.py`) still uses the legacy 3-bucket model** —
+a follow-up if you want the Excel output to match.
 
 ---
 

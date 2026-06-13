@@ -11,15 +11,15 @@ import { Card, CardBody, CardTitle } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { Select } from "@/components/Select";
 import { useStore } from "@/lib/store";
-import { PILLARS, type Pillar } from "@/lib/taxonomy";
 import {
   filterTx,
   totalSpent,
-  spentByPillar,
   spentBySub,
   incomeInRange,
+  budgetBreakdown,
   type DateRange,
   type SubRow,
+  type BudgetRow,
 } from "@/lib/selectors";
 import { exportCsv, download } from "@/lib/exporters/csv";
 import { exportXlsx } from "@/lib/exporters/xlsx";
@@ -78,7 +78,7 @@ function ExportView() {
   const filtered = filterTx(transactions, range);
   const spent = totalSpent(filtered);
   const income = incomeInRange(detectedIncome, incomeOverrides, months, range);
-  const byPillar = spentByPillar(filtered);
+  const { rows: budgetRows, savingsRate } = budgetBreakdown(filtered, income);
   const subRows = spentBySub(filtered).slice(0, 5);
   const rangeLabel = rangeMode === "all" ? "All months" : formatMonthLabel(rangeMode);
 
@@ -192,9 +192,9 @@ function ExportView() {
             rangeLabel={rangeLabel}
             income={income}
             spent={spent}
-            byPillar={byPillar}
+            savingsRate={savingsRate}
+            budgetRows={budgetRows}
             subRows={subRows}
-            targets={targets}
             metrics={metrics}
           />
         </div>
@@ -210,13 +210,13 @@ const ShareCard = React.forwardRef<
     rangeLabel: string;
     income: number;
     spent: number;
-    byPillar: Record<Pillar, number>;
+    savingsRate: number;
+    budgetRows: BudgetRow[];
     subRows: SubRow[];
-    targets: Record<Pillar, number>;
     metrics: Set<MetricId>;
   }
 >(function ShareCard(
-  { theme, rangeLabel, income, spent, byPillar, subRows, targets, metrics },
+  { theme, rangeLabel, income, spent, savingsRate, budgetRows, subRows, metrics },
   ref
 ) {
   const dark = theme === "ink";
@@ -248,22 +248,31 @@ const ShareCard = React.forwardRef<
         <div style={{ marginTop: 20, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
           <Metric label="Income" value={income} fg={fg} panel={panel} />
           <Metric label="Spent" value={spent} fg={fg} panel={panel} />
-          <Metric label="Left" value={income - spent} fg={fg} panel={panel} />
+          <Metric
+            label="Saved"
+            value={income - spent}
+            fg={fg}
+            panel={panel}
+            note={income > 0 ? formatPct(savingsRate, 0) : undefined}
+          />
         </div>
       )}
 
       {metrics.has("pillars") && (
         <div style={{ marginTop: 16, background: panel, borderRadius: 16, padding: 16 }}>
           <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.7, marginBottom: 8 }}>
-            WHERE IT WENT
+            WHERE YOUR INCOME WENT
           </div>
-          {PILLARS.map((p) => {
-            const pct = spent > 0 ? byPillar[p] / spent : 0;
+          {budgetRows.map((r) => {
+            const pct = Math.max(0, r.actual);
             return (
-              <div key={p} style={{ marginBottom: 8 }}>
+              <div key={r.bucket} style={{ marginBottom: 8 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 600 }}>
-                  <span>{p}</span>
-                  <span>{formatSGD(byPillar[p], { decimals: false })} · {formatPct(pct, 0)}</span>
+                  <span>{r.bucket}</span>
+                  <span>
+                    {formatSGD(r.amount, { decimals: false })} ·{" "}
+                    {income > 0 ? formatPct(pct, 0) : "—"}
+                  </span>
                 </div>
                 <div style={{ height: 8, background: "rgba(0,0,0,0.12)", borderRadius: 99, marginTop: 4 }}>
                   <div
@@ -284,20 +293,17 @@ const ShareCard = React.forwardRef<
       {metrics.has("targets") && (
         <div style={{ marginTop: 16, background: panel, borderRadius: 16, padding: 16 }}>
           <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.7, marginBottom: 8 }}>
-            VS TARGET
+            VS 50 / 30 / 20 TARGET
           </div>
-          {PILLARS.map((p) => {
-            const actual = spent > 0 ? byPillar[p] / spent : 0;
-            const ok = p === "Future Savings" ? actual >= targets[p] : actual <= targets[p];
-            return (
-              <div key={p} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
-                <span>{p}</span>
-                <span>
-                  {formatPct(actual, 0)} / {formatPct(targets[p], 0)} {ok ? "✓" : "✗"}
-                </span>
-              </div>
-            );
-          })}
+          {budgetRows.map((r) => (
+            <div key={r.bucket} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+              <span>{r.bucket}</span>
+              <span>
+                {income > 0 ? formatPct(Math.max(0, r.actual), 0) : "—"} /{" "}
+                {formatPct(r.target, 0)} {r.onTrack ? "✓" : "✗"}
+              </span>
+            </div>
+          ))}
         </div>
       )}
 
@@ -323,11 +329,13 @@ function Metric({
   value,
   fg,
   panel,
+  note,
 }: {
   label: string;
   value: number;
   fg: string;
   panel: string;
+  note?: string;
 }) {
   return (
     <div style={{ background: panel, borderRadius: 14, padding: "12px 14px" }}>
@@ -335,6 +343,7 @@ function Metric({
       <div style={{ fontSize: 20, fontWeight: 800, color: fg, fontVariantNumeric: "tabular-nums" }}>
         {formatSGD(value, { decimals: false })}
       </div>
+      {note && <div style={{ fontSize: 11, fontWeight: 700, opacity: 0.7 }}>{note} saved</div>}
     </div>
   );
 }

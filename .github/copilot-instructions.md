@@ -14,8 +14,11 @@ Key files:
 - `build_tracker.py` — the **generator**. Reads the OCBC CSV, auto-categorizes spend rows via
   merchant-text rules, and writes `MonthlyExpenseTracker.xlsx` (Dashboard / Transactions / Setup).
 - `web/` — the **web app**. Next.js 16 + TypeScript + Tailwind v4, fully client-side (data never
-  leaves the browser), deployable to Vercel. The TypeScript taxonomy/rules in `web/src/lib/`
-  mirror the Python ones — keep them in sync.
+  leaves the browser), deployable to Vercel. **Note:** the web app has evolved past the Python
+  model — it treats **savings as an outcome** (Income − Spending), auto-detects **transfers**
+  (savings/investment + P2P) and **excludes them from spending**, and evaluates 50/30/20 as a
+  **share of income**. The Python generator still uses the legacy 3-bucket model (incl. a
+  "Future Savings" spend pillar). Keep this divergence in mind; reconcile if you update either.
 - `instructions.md` — the **spec/prompt** for the tracker. Source of truth for required structure,
   categories, and dashboard formulas. Read it fully before changing the generator.
 - `TransactionHistory_*.csv` — a real **OCBC FRANK account** export; the raw input data.

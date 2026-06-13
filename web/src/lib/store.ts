@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage, type StateStorage } from "zustand/middleware";
 import { get as idbGet, set as idbSet, del as idbDel } from "idb-keyval";
 import { categorize } from "./categorize";
-import { TARGETS, type Pillar } from "./taxonomy";
+import { TARGETS, type BudgetBucket, type Pillar } from "./taxonomy";
 import type { ColumnMapping } from "./banks/types";
 import type { IncomeByMonth, ParseResult, Transaction } from "./types";
 
@@ -31,8 +31,8 @@ interface AppState {
 
   /** Saved custom column mappings for unknown banks. */
   presets: SavedPreset[];
-  /** Budget targets per pillar (fractions). */
-  targets: Record<Pillar, number>;
+  /** Budget targets per bucket (share of income). */
+  targets: Record<BudgetBucket, number>;
 
   /** Hydration flag so the UI can wait for IndexedDB. */
   _hydrated: boolean;
@@ -53,7 +53,7 @@ interface AppState {
   setIncome: (month: string, amount: number) => void;
   forgetMerchant: (merchantKey: string) => void;
   removeOverride: (fingerprint: string) => void;
-  setTarget: (pillar: Pillar, value: number) => void;
+  setTarget: (bucket: BudgetBucket, value: number) => void;
   addPreset: (preset: SavedPreset) => void;
   removePreset: (name: string) => void;
   clearAll: () => void;
@@ -174,8 +174,8 @@ export const useStore = create<AppState>()(
           };
         }),
 
-      setTarget: (pillar, value) =>
-        set((s) => ({ targets: { ...s.targets, [pillar]: value } })),
+      setTarget: (bucket, value) =>
+        set((s) => ({ targets: { ...s.targets, [bucket]: value } })),
 
       addPreset: (preset) =>
         set((s) => ({
@@ -197,7 +197,7 @@ export const useStore = create<AppState>()(
         }),
     }),
     {
-      name: "money-tracker-v1",
+      name: "money-tracker-v2",
       storage: createJSONStorage(() => idbStorage),
       onRehydrateStorage: () => (state) => {
         if (state) state._hydrated = true;

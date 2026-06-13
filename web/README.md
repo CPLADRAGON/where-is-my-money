@@ -36,9 +36,13 @@ npx tsx scripts/smoke-parse.ts   # parser parity test vs the sample OCBC CSV
   Pillar -> Sub-Category dropdowns, provenance badges (rule / learned / manual /
   default), bulk apply, and **learned merchant memory** (recurring payees
   auto-categorize on future imports).
-- **Dashboard** — month / all / custom range selector; income, spent and
-  remaining cards; pillar-vs-target table with status; and four charts
-  (spend-by-pillar pie, actual-vs-target bars, sub-category bars, monthly trend).
+- **Dashboard** — month / all / custom range selector; Income / Spent / Saved and
+  **Savings-Rate** cards; a **"Where your income went"** flow bar; a **50/30/20
+  (share-of-income)** table with status; and charts (Needs-vs-Wants pie,
+  actual-vs-target bars, sub-category bars, monthly income/spent/saved trend).
+  Savings is treated as an **outcome** (Income − Spending), not a spend category;
+  **transfers** (savings/investment moves + P2P) are auto-detected and **excluded
+  from spending**.
 - **Settings** — edit budget targets, monthly income, remembered merchants and
   saved bank presets; one-click clear-all (privacy reset).
 - **Export** — optional CSV and `.xlsx` (mirrors the original workbook), plus a
@@ -60,7 +64,12 @@ src/
 ```
 
 Categorization precedence: **manual override -> learned merchant rule -> keyword
-rule -> default (Variable Wants -> Shopping)**.
+rule -> transfer detection -> default (Variable Wants -> Shopping)**.
+
+**Spending model.** Money is split by transaction type: `spending` (Fixed Needs /
+Variable Wants), `transfer` (savings/investment + P2P — excluded from spending),
+and `income`. Savings is an outcome: **Savings = Income - Spending**, and the
+50/30/20 rule is evaluated as a **share of income**.
 
 ## Deploy to Vercel
 

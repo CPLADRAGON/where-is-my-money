@@ -10,7 +10,7 @@ import { Card, CardBody } from "@/components/Card";
 import { Badge } from "@/components/Badge";
 import { CategoryPicker } from "@/components/CategoryPicker";
 import { useStore } from "@/lib/store";
-import { CATEGORIES, PILLARS, type Pillar } from "@/lib/taxonomy";
+import { CATEGORIES, PILLARS, isSpending, type Pillar } from "@/lib/taxonomy";
 import { formatSGD, formatMonthLabel } from "@/lib/utils";
 import type { Provenance } from "@/lib/types";
 
@@ -190,12 +190,19 @@ function ReviewView() {
                     <Badge tone={PROV_TONE[t.provenance]}>{t.provenance}</Badge>
                   </td>
                   <td className="px-3 py-2">
-                    <CategoryPicker
-                      compact
-                      pillar={t.pillar}
-                      sub={t.sub}
-                      onChange={(p, s) => setCategory(t.id, p, s, remember)}
-                    />
+                    <div className="flex items-center gap-2">
+                      <CategoryPicker
+                        compact
+                        pillar={t.pillar}
+                        sub={t.sub}
+                        onChange={(p, s) => setCategory(t.id, p, s, remember)}
+                      />
+                      {!isSpending(t.pillar) && (
+                        <span className="whitespace-nowrap rounded-full bg-canvas-soft px-2 py-0.5 text-[10px] font-semibold text-mute">
+                          not spending
+                        </span>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

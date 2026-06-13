@@ -16,13 +16,19 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
-import { PILLAR_COLORS, type Pillar } from "@/lib/taxonomy";
+import {
+  PILLAR_COLORS,
+  BUCKET_COLORS,
+  type SpendingPillar,
+  type BudgetBucket,
+} from "@/lib/taxonomy";
 import { formatSGD, formatPct, formatMonthLabel } from "@/lib/utils";
-import type { SubRow, MonthlyPoint } from "@/lib/selectors";
+import type { SubRow, MonthlyPoint, BudgetRow } from "@/lib/selectors";
 
 const SUB_COLOR = "#2A9D8F";
-const INCOME_COLOR = "#163300";
+const INCOME_COLOR = "#264653";
 const SPENT_COLOR = "#E76F51";
+const SAVED_COLOR = "#2A9D8F";
 
 const num = (v: unknown): number => {
   const n = Number(v);
@@ -33,10 +39,11 @@ const moneyShort = (v: unknown) => formatSGD(num(v), { decimals: false });
 const pct = (v: unknown) => formatPct(num(v));
 const pct0 = (v: unknown) => formatPct(num(v), 0);
 
+/** Spend-by-pillar doughnut (Needs vs Wants). */
 export function PillarPie({
   data,
 }: {
-  data: { pillar: Pillar; amount: number }[];
+  data: { pillar: SpendingPillar; amount: number }[];
 }) {
   const slices = data.filter((d) => d.amount > 0);
   if (slices.length === 0) return <Empty />;
@@ -64,16 +71,18 @@ export function PillarPie({
   );
 }
 
-export function TargetBars({
-  data,
-}: {
-  data: { pillar: Pillar; actual: number; target: number }[];
-}) {
+/** 50/30/20 actual-vs-target bars, as a share of income. */
+export function BudgetBars({ data }: { data: BudgetRow[] }) {
+  const rows = data.map((r) => ({
+    bucket: r.bucket,
+    actual: Math.max(0, r.actual),
+    target: r.target,
+  }));
   return (
     <ResponsiveContainer width="100%" height={260}>
-      <BarChart data={data} margin={{ top: 16, right: 8, left: 0, bottom: 0 }}>
+      <BarChart data={rows} margin={{ top: 16, right: 8, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e3e8e0" />
-        <XAxis dataKey="pillar" tick={{ fontSize: 11 }} />
+        <XAxis dataKey="bucket" tick={{ fontSize: 12 }} />
         <YAxis
           tickFormatter={(v) => `${Math.round(num(v) * 100)}%`}
           domain={[0, 1]}
@@ -81,10 +90,57 @@ export function TargetBars({
         />
         <Tooltip formatter={pct} />
         <Legend />
-        <Bar dataKey="actual" name="Actual %" fill={SUB_COLOR} radius={[6, 6, 0, 0]}>
+        <Bar dataKey="actual" name="Actual % of income" radius={[6, 6, 0, 0]}>
+          {rows.map((r) => (
+            <Cell key={r.bucket} fill={BUCKET_COLORS[r.bucket as BudgetBucket]} />
+          ))}
           <LabelList dataKey="actual" position="top" formatter={pct0} style={{ fontSize: 11 }} />
         </Bar>
-        <Bar dataKey="target" name="Target %" fill="#E9C46A" radius={[6, 6, 0, 0]} />
+        <Bar dataKey="target" name="Target %" fill="#d8e0d2" radius={[6, 6, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+/** Horizontal "where your income went" flow (stacked single bar). */
+export function IncomeFlow({
+  income,
+  needs,
+  wants,
+  saved,
+}: {
+  income: number;
+  needs: number;
+  wants: number;
+  saved: number;
+}) {
+  if (income <= 0) return <Empty label="Add income to see the flow." />;
+  const row = [
+    {
+      name: "Income",
+      Needs: needs,
+      Wants: wants,
+      Saved: Math.max(0, saved),
+      Overspent: saved < 0 ? -saved : 0,
+    },
+  ];
+  return (
+    <ResponsiveContainer width="100%" height={130}>
+      <BarChart data={row} layout="vertical" margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+        <XAxis type="number" hide domain={[0, Math.max(income, needs + wants)]} />
+        <YAxis type="category" dataKey="name" hide />
+        <Tooltip formatter={money} />
+        <Legend />
+        <Bar dataKey="Needs" stackId="a" fill={BUCKET_COLORS.Needs} radius={[6, 0, 0, 6]}>
+          <LabelList dataKey="Needs" position="center" formatter={moneyShort} style={{ fontSize: 11, fill: "#fff" }} />
+        </Bar>
+        <Bar dataKey="Wants" stackId="a" fill={BUCKET_COLORS.Wants}>
+          <LabelList dataKey="Wants" position="center" formatter={moneyShort} style={{ fontSize: 11 }} />
+        </Bar>
+        <Bar dataKey="Saved" stackId="a" fill={SAVED_COLOR}>
+          <LabelList dataKey="Saved" position="center" formatter={moneyShort} style={{ fontSize: 11, fill: "#fff" }} />
+        </Bar>
+        <Bar dataKey="Overspent" stackId="a" fill={SPENT_COLOR} radius={[0, 6, 6, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -122,31 +178,18 @@ export function TrendLine({ data }: { data: MonthlyPoint[] }) {
         <YAxis tickFormatter={moneyShort} tick={{ fontSize: 11 }} width={60} />
         <Tooltip formatter={money} />
         <Legend />
-        <Line
-          type="monotone"
-          dataKey="income"
-          name="Income"
-          stroke={INCOME_COLOR}
-          strokeWidth={2}
-          dot={{ r: 3 }}
-        />
-        <Line
-          type="monotone"
-          dataKey="spent"
-          name="Spent"
-          stroke={SPENT_COLOR}
-          strokeWidth={2}
-          dot={{ r: 3 }}
-        />
+        <Line type="monotone" dataKey="income" name="Income" stroke={INCOME_COLOR} strokeWidth={2} dot={{ r: 3 }} />
+        <Line type="monotone" dataKey="spent" name="Spent" stroke={SPENT_COLOR} strokeWidth={2} dot={{ r: 3 }} />
+        <Line type="monotone" dataKey="saved" name="Saved" stroke={SAVED_COLOR} strokeWidth={2} dot={{ r: 3 }} />
       </LineChart>
     </ResponsiveContainer>
   );
 }
 
-function Empty() {
+function Empty({ label }: { label?: string }) {
   return (
     <div className="grid h-[200px] place-items-center text-sm text-mute">
-      No data for this range.
+      {label ?? "No data for this range."}
     </div>
   );
 }

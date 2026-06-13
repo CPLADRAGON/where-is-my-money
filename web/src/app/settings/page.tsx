@@ -8,7 +8,7 @@ import { Card, CardBody, CardTitle } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { CategoryPicker } from "@/components/CategoryPicker";
 import { useStore } from "@/lib/store";
-import { PILLARS, type Pillar } from "@/lib/taxonomy";
+import { BUDGET_BUCKETS, type Pillar } from "@/lib/taxonomy";
 import { formatMonthLabel, formatPct } from "@/lib/utils";
 
 export default function Page() {
@@ -48,21 +48,21 @@ function SettingsView() {
             Baseline is 50% Needs / 30% Wants / 20% Savings.
           </p>
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            {PILLARS.map((p) => (
-              <div key={p} className="grid gap-1">
-                <label className="text-sm font-medium">{p}</label>
+            {BUDGET_BUCKETS.map((b) => (
+              <div key={b} className="grid gap-1">
+                <label className="text-sm font-medium">{b}</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
                     min={0}
                     max={100}
-                    value={Math.round(targets[p] * 100)}
+                    value={Math.round(targets[b] * 100)}
                     onChange={(e) =>
-                      setTarget(p as Pillar, Number(e.target.value) / 100)
+                      setTarget(b, Number(e.target.value) / 100)
                     }
                     className="h-10 w-24 rounded-[var(--radius-md)] border border-hairline bg-canvas px-2 text-sm tabular"
                   />
-                  <span className="text-sm text-mute">% ({formatPct(targets[p], 0)})</span>
+                  <span className="text-sm text-mute">% ({formatPct(targets[b], 0)})</span>
                 </div>
               </div>
             ))}

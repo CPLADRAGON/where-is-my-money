@@ -35,7 +35,7 @@ import { chromium } from "playwright";
   await page.getByRole("link", { name: /Export/i }).first().click();
   await page.waitForURL("**/export");
   await page.waitForTimeout(800);
-  const cardVisible = await page.getByText(/WHERE IT WENT/i).isVisible();
+  const cardVisible = await page.getByText(/WHERE YOUR INCOME WENT/i).isVisible();
   console.log("share card visible:", cardVisible);
   await page.screenshot({ path: "scripts/_export.png", fullPage: true });
 

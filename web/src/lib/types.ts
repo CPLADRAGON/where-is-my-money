@@ -15,7 +15,7 @@ export interface Transaction {
   description: string;
   /** Derived clean payee key used for merchant learning. */
   merchantKey: string;
-  /** Positive spend amount (SGD). */
+  /** Positive amount that left the account (SGD). */
   amount: number;
   pillar: Pillar;
   sub: string;
@@ -38,6 +38,7 @@ export interface ParseResult {
     total: number;
     autoCategorized: number;
     defaulted: number;
+    transfers: number;
     income: number;
   };
 }
