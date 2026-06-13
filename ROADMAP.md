@@ -7,10 +7,89 @@ and **dependencies**.
 > Suggested order rationale: do the **visual redesign (#6) first** because the
 > logo (#4), dark mode (#2), and upload feedback (#7) all inherit from the chosen
 > look. Then ship the quick UX wins, then i18n, PWA, and docs.
+>
+> **Note:** Item **#8 (data-model / presentation rethink)** is arguably the most
+> important and pairs naturally with the redesign (#6), since it changes what the
+> dashboard shows. It needs a product decision — see its section for options.
 
 ---
 
-## P0 — Visual redesign (do first; everything else inherits from it)
+## P0 — Data model & presentation rethink (pairs with the redesign)
+
+### 8. Reconsider "Future Savings" and how spending is presented
+
+**Problem.** "Future Savings" always shows ~0% because it is **not a spending
+category**. A bank statement lists money *leaving* as withdrawals; savings is
+either (a) the money you simply *didn't* spend, or (b) money **transferred** to a
+savings/investment account — which is an internal transfer, not an expense.
+Presenting savings next to Needs/Wants mixes two different concepts (a *spending*
+breakdown vs a *budget allocation*), which is confusing and makes the chart look
+broken.
+
+**Research / best practice.**
+- The **50/30/20 rule** treats savings as a **20% allocation of net income**, set
+  aside — *not* a spend bucket. Savings is an **outcome**, not a category.
+- "**Pay yourself first**" / cash-flow budgeting frames money as a **flow**:
+  `Income → Spending (by category) → what's left = Savings`.
+- The popular Reddit **cash-flow (Sankey) diagrams** visualize exactly this:
+  income on the left flows into taxes, savings/investments, and spending
+  categories — far clearer for "where did my money go" than a pie of withdrawals.
+- Good trackers also separate **transaction types**: Income, Spending, and
+  **Transfers** (to own accounts / to people), so internal moves don't inflate
+  "spending."
+
+**Recommended approach (default if no other direction given).**
+1. **Drop "Future Savings" as a spending pillar.** Spending = **Needs vs Wants**
+   only. Keep the 3-bucket *names* out of the spend breakdown.
+2. **Introduce transaction types** at parse time:
+   - `income` (salary, refunds) — already detected.
+   - `spending` (Needs / Wants) — the real expense rows.
+   - `transfer` / `savings-investment` — money to your own savings/investment
+     accounts or P2P transfers; **excluded from spending totals**, shown
+     separately so they don't distort the picture.
+   - `uncategorized` — review queue (today's "auto-default").
+3. **Show a headline `Savings Rate`** = `(Income − Spending) / Income`, plus
+   Income / Spent / Saved cards. This makes savings a first-class outcome without
+   a fake pillar.
+4. **Add a cash-flow / Sankey "Where your money went" view** (income → big
+   buckets → categories). Recharts lacks a Sankey out of the box; options:
+   `recharts` Sankey (experimental), `@nivo/sankey`, or `d3-sankey`.
+5. **Re-architect categories for clarity** (see below).
+
+**Category architecture options (pick one during design):**
+- **A. Two-tier essentials model (recommended):** top level = **Essential vs
+  Discretionary** (clearer than "Needs/Wants" for some users), each with rich
+  sub-categories (Housing, Transport, Food, Subscriptions, Shopping, Health,
+  etc.). Drill-down from group → sub.
+- **B. Flat rich categories** (~12–15) with smart grouping in the UI, plus tags
+  (recurring vs one-off, essential vs nice-to-have).
+- **C. Keep Needs/Wants** but add a **Transfers/Savings** *type* outside spending.
+
+**Better "where did it go" presentations to add:**
+- **Sankey / flow** (headline view).
+- **Treemap** for proportional spend (area = amount) — great at a glance.
+- **Top merchants** and **recurring vs one-off** split (surfaces subscriptions).
+- **Month-over-month deltas** ("Dining up $80 vs last month").
+- **Per-category trend** sparklines.
+
+**Migration / compatibility notes.**
+- Keep the taxonomy as a single source of truth shared with `build_tracker.py`;
+  if categories change, update **both** and regenerate the workbook + re-run the
+  parity test.
+- Savings-rate and transaction-type logic should live in `lib/selectors.ts` /
+  `lib/categorize.ts` so the Excel export can mirror it.
+- Make transaction **type** user-editable in Review (so a P2P transfer can be
+  marked "transfer" and excluded, or "spending" if it really was a shared bill).
+
+**Effort:** M–L (data model + new charts + review UI for types).
+**Dependencies:** Product decision on the category model (A/B/C). Pairs with #6.
+**Status:** ⚠️ Needs your sign-off — I recommended the default above; the
+trade-off question (drop savings pillar + add Savings Rate, vs keep a
+transfer-only savings bucket) was left for you to confirm.
+
+---
+
+## P0 — Visual redesign (do early; most things inherit from it)
 
 ### 6. New visual design
 - **What:** Replace the current Wise-inspired theme with a look you actually like.
@@ -134,7 +213,8 @@ and **dependencies**.
 
 ## Suggested sequencing
 
-1. **#6 Visual redesign** (unblocks the rest)
+1. **#8 Data-model / presentation rethink** + **#6 Visual redesign** (do together —
+   they reshape the dashboard and unblock the rest)
 2. **#7 Upload feedback** + **#2 Dark mode** (quick wins in the new style)
 3. **#4 Logo/icons** → **#3 Mobile/PWA + Add to Home Screen**
 4. **#1 Chinese i18n**
