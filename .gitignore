@@ -1,0 +1,26 @@
+# --- Personal financial data — NEVER commit (per project policy) ---
+TransactionHistory_*.csv
+MonthlyExpenseTracker.xlsx
+*.xlsx
+py_rows.json
+
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# --- Node / Next.js (web/) ---
+web/node_modules/
+web/.next/
+web/out/
+web/build/
+web/.vercel/
+web/next-env.d.ts
+web/*.tsbuildinfo
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
