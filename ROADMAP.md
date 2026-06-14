@@ -170,7 +170,12 @@ conventions and the manifest.
 
 ## Status
 
-All items above are implemented. Optional follow-ups if desired later:
+All items above are implemented. Post-roadmap features:
+- Category drill-down: unified filterable `/transactions` page with clickable
+  Dashboard entry points (spec: `docs/superpowers/specs/2026-06-14-transactions-drilldown-design.md`,
+  plan: `docs/superpowers/plans/2026-06-14-transactions-drilldown.md`).
+
+Optional follow-ups if desired later:
 - Service worker for full offline app-shell caching (PWA already installable).
 - README screenshots (light/dark) now that the design is settled.
 - Deeper i18n: translate category/sub-category display labels (values stay English).

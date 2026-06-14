@@ -32,10 +32,11 @@ npx tsx scripts/smoke-parse.ts   # parser parity test vs the sample OCBC CSV
 - **Import** — drag-drop a CSV. OCBC statements are auto-detected; any other bank
   works via the **column-mapping wizard**, which can save reusable presets.
   Includes per-bank "how to download your CSV" guidance and a **demo dataset**.
-- **Review & categorize** — uncategorized-first table with dependent
-  Pillar -> Sub-Category dropdowns, provenance badges (rule / learned / manual /
-  default), bulk apply, and **learned merchant memory** (recurring payees
-  auto-categorize on future imports).
+- **Transactions** — one filterable list (pillar, sub-category, month, type,
+  "Needs review", search, sort; filters live in the URL). View and recategorize
+  inline with dependent Pillar -> Sub-Category dropdowns, provenance badges, bulk
+  apply, and **learned merchant memory**. Tapping a category on the Dashboard
+  deep-links here pre-filtered.
 - **Dashboard** — month / all / custom range selector; Income / Spent / Saved and
   **Savings-Rate** cards; a **"Where your income went"** flow bar; a **50/30/20
   (share-of-income)** table with status; and charts (Needs-vs-Wants pie,
