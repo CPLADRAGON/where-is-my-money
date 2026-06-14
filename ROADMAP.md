@@ -213,6 +213,9 @@ a follow-up if you want the Excel output to match.
   - Add screenshots once #6 lands so they reflect the final look.
 - **Effort:** S.
 - **Dependencies:** #6 (for accurate screenshots).
+- **Status:** ✅ Root `README.md` written (overview, both implementations, privacy
+  stance, features, run/deploy, layout). **Screenshots deferred** until after the
+  visual redesign (#6).
 
 ---
 
