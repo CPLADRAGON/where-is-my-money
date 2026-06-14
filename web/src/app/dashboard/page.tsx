@@ -86,7 +86,7 @@ function DashboardView() {
   return (
     <div className="grid gap-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-2xl font-black tracking-tight">Dashboard</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
         <div className="flex flex-wrap items-center gap-2">
           <Select value={rangeMode} onChange={(e) => setRangeMode(e.target.value)}>
             <option value="all">All months</option>
@@ -126,7 +126,7 @@ function DashboardView() {
           <CardBody>
             <CardTitle>Savings rate</CardTitle>
             <p
-              className="tabular mt-2 text-3xl font-black"
+              className="tabular mt-2 text-3xl font-semibold"
               style={{ color: savingsRate >= 0.2 ? "var(--color-positive)" : "var(--color-warning-deep)" }}
             >
               {income > 0 ? formatPct(savingsRate, 0) : "—"}
@@ -256,7 +256,7 @@ function SummaryCard({
     <Card>
       <CardBody>
         <CardTitle>{label}</CardTitle>
-        <p className="tabular mt-2 text-3xl font-black" style={{ color: accent }}>
+        <p className="tabular mt-2 text-3xl font-semibold" style={{ color: accent }}>
           {formatSGD(value)}
         </p>
       </CardBody>

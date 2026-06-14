@@ -54,7 +54,7 @@ function ExportView() {
   const [metrics, setMetrics] = useState<Set<MetricId>>(
     new Set(["totals", "pillars"])
   );
-  const [theme, setTheme] = useState<"lime" | "ink">("lime");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   const cardRef = useRef<HTMLDivElement>(null);
 
   const range: DateRange = useMemo(
@@ -103,7 +103,7 @@ function ExportView() {
 
   return (
     <div className="grid gap-5">
-      <h1 className="text-2xl font-black tracking-tight">Export</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Export</h1>
 
       {/* File exports */}
       <Card>
@@ -164,17 +164,17 @@ function ExportView() {
               <div className="flex gap-2">
                 <Button
                   size="sm"
-                  variant={theme === "lime" ? "primary" : "secondary"}
-                  onClick={() => setTheme("lime")}
+                  variant={theme === "light" ? "primary" : "secondary"}
+                  onClick={() => setTheme("light")}
                 >
-                  Lime
+                  Light
                 </Button>
                 <Button
                   size="sm"
-                  variant={theme === "ink" ? "primary" : "secondary"}
-                  onClick={() => setTheme("ink")}
+                  variant={theme === "dark" ? "primary" : "secondary"}
+                  onClick={() => setTheme("dark")}
                 >
-                  Ink
+                  Dark
                 </Button>
               </div>
             </div>
@@ -206,7 +206,7 @@ function ExportView() {
 const ShareCard = React.forwardRef<
   HTMLDivElement,
   {
-    theme: "lime" | "ink";
+    theme: "light" | "dark";
     rangeLabel: string;
     income: number;
     spent: number;
@@ -219,11 +219,11 @@ const ShareCard = React.forwardRef<
   { theme, rangeLabel, income, spent, savingsRate, budgetRows, subRows, metrics },
   ref
 ) {
-  const dark = theme === "ink";
-  const bg = dark ? "#163300" : "#9fe870";
-  const fg = dark ? "#ffffff" : "#0e0f0c";
-  const sub = dark ? "#cdffad" : "#163300";
-  const panel = dark ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.6)";
+  const dark = theme === "dark";
+  const bg = dark ? "#1d1d1f" : "#ffffff";
+  const fg = dark ? "#f5f5f7" : "#1d1d1f";
+  const sub = dark ? "#2997ff" : "#0066cc";
+  const panel = dark ? "rgba(255,255,255,0.06)" : "#f5f5f7";
 
   return (
     <div

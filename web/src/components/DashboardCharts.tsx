@@ -25,10 +25,10 @@ import {
 import { formatSGD, formatPct, formatMonthLabel } from "@/lib/utils";
 import type { SubRow, MonthlyPoint, BudgetRow } from "@/lib/selectors";
 
-const SUB_COLOR = "#2A9D8F";
-const INCOME_COLOR = "#264653";
-const SPENT_COLOR = "#E76F51";
-const SAVED_COLOR = "#2A9D8F";
+const SUB_COLOR = "#0066cc";
+const INCOME_COLOR = "#1d1d1f";
+const SPENT_COLOR = "#ff3b30";
+const SAVED_COLOR = "#34c759";
 
 const num = (v: unknown): number => {
   const n = Number(v);
@@ -96,7 +96,7 @@ export function BudgetBars({ data }: { data: BudgetRow[] }) {
           ))}
           <LabelList dataKey="actual" position="top" formatter={pct0} style={{ fontSize: 11 }} />
         </Bar>
-        <Bar dataKey="target" name="Target %" fill="#d8e0d2" radius={[6, 6, 0, 0]} />
+        <Bar dataKey="target" name="Target %" fill="#d2d2d7" radius={[6, 6, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

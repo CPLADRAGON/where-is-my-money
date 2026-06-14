@@ -38,7 +38,7 @@ function SettingsView() {
 
   return (
     <div className="grid gap-5">
-      <h1 className="text-2xl font-black tracking-tight">Settings</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
 
       {/* Targets */}
       <Card>

@@ -29,7 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="grid size-9 place-items-center rounded-[var(--radius-md)] bg-primary text-on-primary">
               <Wallet className="size-5" />
             </span>
-            <span className="text-base font-black tracking-tight">Money Tracker</span>
+            <span className="text-base font-semibold tracking-tight">Money Tracker</span>
           </Link>
           <nav className="flex items-center gap-1">
             {NAV.map(({ href, label, icon: Icon }) => {

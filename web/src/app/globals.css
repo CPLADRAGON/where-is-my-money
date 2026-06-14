@@ -1,55 +1,59 @@
 @import "tailwindcss";
 
 /*
-  Wise-inspired theme (from VoltAgent/awesome-design-md).
-  Friendly money-brand: lime-green accent, sage neutrals, rounded white cards
-  on a pale-green canvas, heavy display headings + Inter body, tabular figures.
+  Apple-inspired theme (from VoltAgent/awesome-design-md).
+  Clean iOS "grouped card" aesthetic: parchment page, white rounded cards,
+  near-black ink, a single Action-Blue accent, SF Pro system font, and iOS
+  system colors for semantics. Minimal chrome, restrained depth.
+
+  Token NAMES are kept stable so the whole app inherits the new look by value.
 */
 @theme {
-  /* Brand */
-  --color-primary: #9fe870;
-  --color-primary-active: #cdffad;
-  --color-primary-pale: #e2f6d5;
-  --color-on-primary: #0e0f0c;
+  /* Brand / accent (Action Blue) */
+  --color-primary: #0066cc;
+  --color-primary-active: #0071e3;
+  --color-primary-pale: #e8f1fc;
+  --color-on-primary: #ffffff;
 
   /* Ink / text */
-  --color-ink: #0e0f0c;
-  --color-ink-deep: #163300;
-  --color-body: #454745;
-  --color-mute: #868685;
+  --color-ink: #1d1d1f;
+  --color-ink-deep: #003a8c;
+  --color-body: #3a3a3c;
+  --color-mute: #86868b;
 
   /* Surfaces */
   --color-canvas: #ffffff;
-  --color-canvas-soft: #e8ebe6;
-  --color-page: #eef4e9;
-  --color-hairline: #d8e0d2;
+  --color-canvas-soft: #f5f5f7;
+  --color-page: #f5f5f7;
+  --color-hairline: #e3e3e6;
 
-  /* Semantics */
-  --color-positive: #2ead4b;
-  --color-positive-deep: #054d28;
-  --color-warning: #ffd11a;
-  --color-warning-deep: #b86700;
-  --color-negative: #d03238;
-  --color-negative-deep: #a72027;
-  --color-accent-cyan: #38c8ff;
-  --color-accent-orange: #ffc091;
+  /* Semantics (iOS system colors) */
+  --color-positive: #34c759;
+  --color-positive-deep: #248a3d;
+  --color-warning: #ff9500;
+  --color-warning-deep: #b25e00;
+  --color-negative: #ff3b30;
+  --color-negative-deep: #c4271d;
+  --color-accent-cyan: #5ac8fa;
+  --color-accent-orange: #ff9500;
 
-  /* Pillar chart palette */
-  --color-pillar-needs: #163300;
-  --color-pillar-wants: #ffd11a;
-  --color-pillar-savings: #2ead4b;
+  /* Pillar / chart palette */
+  --color-pillar-needs: #0066cc;
+  --color-pillar-wants: #ff9500;
+  --color-pillar-savings: #34c759;
 
-  /* Radius */
+  /* Radius — Apple cards ~18px; CTAs are pills; controls ~12px */
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-lg: 18px;
+  --radius-xl: 980px;
 
-  /* Fonts */
-  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  /* Fonts — native SF on Apple, graceful fallback elsewhere */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+    var(--font-inter), system-ui, sans-serif;
 
-  /* Shadows */
-  --shadow-card: 0 1px 2px rgba(22, 51, 0, 0.04), 0 8px 24px rgba(22, 51, 0, 0.06);
+  /* Depth — soft, restrained */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
 html,
@@ -62,6 +66,7 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
 }
 
 /* Money figures and tabular data line up cleanly. */
@@ -70,7 +75,6 @@ body {
   font-feature-settings: "tnum";
 }
 
-/* Reusable surface + control primitives (kept tiny; Tailwind covers the rest). */
 @layer components {
   .card {
     background: var(--color-canvas);
@@ -97,8 +101,8 @@ body {
   }
   .btn-tertiary {
     background: var(--color-canvas);
-    color: var(--color-ink);
-    border: 1px solid var(--color-ink);
+    color: var(--color-primary);
+    border: 1px solid var(--color-hairline);
     border-radius: var(--radius-xl);
     font-weight: 600;
   }
