@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Wallet, LayoutDashboard, ListChecks, Settings, Download, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const NAV = [
   { href: "/", label: "Import", icon: Upload },
@@ -31,33 +32,36 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </span>
             <span className="text-base font-semibold tracking-tight">Money Tracker</span>
           </Link>
-          <nav className="flex items-center gap-1">
-            {NAV.map(({ href, label, icon: Icon }) => {
-              const active =
-                href === "/" ? pathname === "/" : pathname.startsWith(href);
-              const badge = href === "/review" && needsReview > 0 ? needsReview : null;
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={cn(
-                    "relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition-colors",
-                    active
-                      ? "bg-ink text-white"
-                      : "text-body hover:bg-canvas-soft"
-                  )}
-                >
-                  <Icon className="size-4" />
-                  <span className="hidden sm:inline">{label}</span>
-                  {badge != null && (
-                    <span className="ml-0.5 grid min-w-5 place-items-center rounded-full bg-negative px-1 text-xs font-bold text-white">
-                      {badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
+          <div className="flex items-center gap-1">
+            <nav className="flex items-center gap-1">
+              {NAV.map(({ href, label, icon: Icon }) => {
+                const active =
+                  href === "/" ? pathname === "/" : pathname.startsWith(href);
+                const badge = href === "/review" && needsReview > 0 ? needsReview : null;
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={cn(
+                      "relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition-colors",
+                      active
+                        ? "bg-primary text-on-primary"
+                        : "text-body hover:bg-canvas-soft"
+                    )}
+                  >
+                    <Icon className="size-4" />
+                    <span className="hidden sm:inline">{label}</span>
+                    {badge != null && (
+                      <span className="ml-0.5 grid min-w-5 place-items-center rounded-full bg-negative px-1 text-xs font-bold text-white">
+                        {badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">{children}</main>

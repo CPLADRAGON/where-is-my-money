@@ -1,12 +1,13 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export function Card({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("card", className)} {...props} />;
-}
+export const Card = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(function Card({ className, ...props }, ref) {
+  return <div ref={ref} className={cn("card", className)} {...props} />;
+});
+Card.displayName = "Card";
 
 export function CardBody({
   className,

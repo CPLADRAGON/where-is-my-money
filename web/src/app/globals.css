@@ -61,6 +61,28 @@ body {
   height: 100%;
 }
 
+/* Dark mode — iOS dark "grouped" surfaces; tokens override by value so all
+   utilities (bg-canvas, text-ink, …) adopt dark automatically. */
+html.dark {
+  color-scheme: dark;
+  --color-primary: #2997ff;
+  --color-primary-active: #0a84ff;
+  --color-primary-pale: #0a2540;
+  --color-on-primary: #ffffff;
+
+  --color-ink: #f5f5f7;
+  --color-ink-deep: #9fd0ff;
+  --color-body: #d6d6da;
+  --color-mute: #8e8e93;
+
+  --color-canvas: #1c1c1e;
+  --color-canvas-soft: #2c2c2e;
+  --color-page: #000000;
+  --color-hairline: #38383a;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
 body {
   background: var(--color-page);
   color: var(--color-ink);
@@ -73,6 +95,39 @@ body {
 .tabular {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
+}
+
+/* Upload-feedback affordances */
+@keyframes cta-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 102, 204, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(0, 102, 204, 0);
+  }
+}
+.cta-pulse {
+  animation: cta-pulse 2s ease-in-out infinite;
+}
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-in-up {
+  animation: fade-in-up 0.35s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta-pulse,
+  .fade-in-up {
+    animation: none;
+  }
 }
 
 @layer components {

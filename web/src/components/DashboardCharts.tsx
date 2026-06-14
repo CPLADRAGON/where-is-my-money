@@ -81,12 +81,12 @@ export function BudgetBars({ data }: { data: BudgetRow[] }) {
   return (
     <ResponsiveContainer width="100%" height={260}>
       <BarChart data={rows} margin={{ top: 16, right: 8, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e3e8e0" />
-        <XAxis dataKey="bucket" tick={{ fontSize: 12 }} />
+        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(142,142,147,0.25)" />
+        <XAxis dataKey="bucket" tick={{ fontSize: 12, fill: "#86868b" }} />
         <YAxis
           tickFormatter={(v) => `${Math.round(num(v) * 100)}%`}
           domain={[0, 1]}
-          tick={{ fontSize: 11 }}
+          tick={{ fontSize: 11, fill: "#86868b" }}
         />
         <Tooltip formatter={pct} />
         <Legend />
@@ -157,7 +157,7 @@ export function SubBars({ data }: { data: SubRow[] }) {
         margin={{ top: 4, right: 56, left: 8, bottom: 4 }}
       >
         <XAxis type="number" hide />
-        <YAxis type="category" dataKey="sub" width={130} tick={{ fontSize: 11 }} />
+        <YAxis type="category" dataKey="sub" width={130} tick={{ fontSize: 11, fill: "#86868b" }} />
         <Tooltip formatter={money} />
         <Bar dataKey="amount" fill={SUB_COLOR} radius={[0, 6, 6, 0]}>
           <LabelList dataKey="amount" position="right" formatter={moneyShort} style={{ fontSize: 11 }} />
@@ -173,9 +173,9 @@ export function TrendLine({ data }: { data: MonthlyPoint[] }) {
   return (
     <ResponsiveContainer width="100%" height={260}>
       <LineChart data={rows} margin={{ top: 16, right: 16, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e3e8e0" />
-        <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-        <YAxis tickFormatter={moneyShort} tick={{ fontSize: 11 }} width={60} />
+        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(142,142,147,0.25)" />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#86868b" }} />
+        <YAxis tickFormatter={moneyShort} tick={{ fontSize: 11, fill: "#86868b" }} width={60} />
         <Tooltip formatter={money} />
         <Legend />
         <Line type="monotone" dataKey="income" name="Income" stroke={INCOME_COLOR} strokeWidth={2} dot={{ r: 3 }} />

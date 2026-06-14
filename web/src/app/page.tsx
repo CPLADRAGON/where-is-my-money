@@ -2,8 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
-import { Sparkles, ShieldCheck, ChevronDown, FileSpreadsheet } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  Sparkles,
+  ShieldCheck,
+  ChevronDown,
+  CheckCircle2,
+  Loader2,
+  ArrowRight,
+} from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { HydrationGate } from "@/components/HydrationGate";
 import { Dropzone } from "@/components/Dropzone";
@@ -34,30 +41,45 @@ function ImportView() {
     | null
   >(null);
   const [error, setError] = useState<string | null>(null);
+  const [parsing, setParsing] = useState(false);
+  const summaryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (summary) {
+      summaryRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [summary]);
 
   function handleCsv(text: string, fileName: string) {
     setError(null);
-    try {
-      const result = parseDetected(text);
-      if (result.transactions.length === 0) {
-        setPending(text, fileName);
-        router.push("/import/map");
-        return;
+    setSummary(null);
+    setParsing(true);
+    // Defer so the spinner can paint before the (sync) parse runs.
+    setTimeout(() => {
+      try {
+        const result = parseDetected(text);
+        if (result.transactions.length === 0) {
+          setPending(text, fileName);
+          router.push("/import/map");
+          return;
+        }
+        importData(result);
+        setSummary({
+          stats: result.stats,
+          bank: result.bankLabel,
+          months: result.months.length,
+        });
+      } catch (e) {
+        if (e instanceof Error && e.message === "UNKNOWN_BANK") {
+          setPending(text, fileName);
+          router.push("/import/map");
+          return;
+        }
+        setError("Could not read that file. Please check it's a CSV export.");
+      } finally {
+        setParsing(false);
       }
-      importData(result);
-      setSummary({
-        stats: result.stats,
-        bank: result.bankLabel,
-        months: result.months.length,
-      });
-    } catch (e) {
-      if (e instanceof Error && e.message === "UNKNOWN_BANK") {
-        setPending(text, fileName);
-        router.push("/import/map");
-        return;
-      }
-      setError("Could not read that file. Please check it's a CSV export.");
-    }
+    }, 50);
   }
 
   return (
@@ -90,12 +112,20 @@ function ImportView() {
         </div>
       )}
 
+      {parsing && (
+        <div className="flex items-center gap-3 rounded-[var(--radius-md)] border border-hairline bg-canvas px-4 py-3 text-sm font-medium text-body">
+          <Loader2 className="size-4 animate-spin text-primary" />
+          Reading and categorizing your transactions…
+        </div>
+      )}
+
       {summary && (
-        <Card>
-          <CardBody className="grid gap-4">
-            <div className="flex items-center gap-2 text-sm font-semibold text-positive-deep">
-              <FileSpreadsheet className="size-4" /> Imported from {summary.bank}
-            </div>
+        <Card ref={summaryRef} className="fade-in-up overflow-hidden">
+          <div className="flex items-center gap-2 bg-positive/10 px-5 py-3 text-sm font-semibold text-positive-deep">
+            <CheckCircle2 className="size-5" /> Imported {summary.stats.total} transactions
+            from {summary.bank}
+          </div>
+          <CardBody className="grid gap-5">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <Stat label="Transactions" value={String(summary.stats.total)} />
               <Stat label="Months" value={String(summary.months)} />
@@ -116,15 +146,22 @@ function ImportView() {
                 </>
               )}
             </div>
+
+            {/* Next-steps stepper */}
+            <Stepper needsReview={summary.stats.defaulted} />
+
             <div className="flex flex-wrap gap-3">
-              <Button onClick={() => router.push("/review")}>
-                Review{" "}
+              <Button
+                className="cta-pulse"
+                onClick={() => router.push("/review")}
+              >
                 {summary.stats.defaulted > 0
-                  ? `${summary.stats.defaulted} uncategorized`
-                  : "transactions"}
+                  ? `Review ${summary.stats.defaulted} uncategorized`
+                  : "Review transactions"}
+                <ArrowRight className="size-4" />
               </Button>
               <Button variant="tertiary" onClick={() => router.push("/dashboard")}>
-                Go to dashboard
+                Skip to dashboard
               </Button>
             </div>
           </CardBody>
@@ -132,6 +169,50 @@ function ImportView() {
       )}
 
       <BankGuides />
+    </div>
+  );
+}
+
+function Stepper({ needsReview }: { needsReview: number }) {
+  const steps = [
+    { label: "Imported", done: true },
+    {
+      label: needsReview > 0 ? `Review (${needsReview})` : "Review",
+      done: false,
+      current: true,
+    },
+    { label: "Dashboard", done: false },
+  ];
+  return (
+    <div className="flex items-center gap-2 text-sm">
+      {steps.map((s, i) => (
+        <div key={s.label} className="flex items-center gap-2">
+          <span
+            className={
+              s.done
+                ? "inline-flex items-center gap-1.5 font-semibold text-positive-deep"
+                : s.current
+                ? "inline-flex items-center gap-1.5 font-semibold text-primary"
+                : "inline-flex items-center gap-1.5 text-mute"
+            }
+          >
+            <span
+              className={
+                "grid size-5 place-items-center rounded-full text-xs font-bold " +
+                (s.done
+                  ? "bg-positive text-white"
+                  : s.current
+                  ? "bg-primary text-on-primary"
+                  : "bg-canvas-soft text-mute")
+              }
+            >
+              {s.done ? "✓" : i + 1}
+            </span>
+            {s.label}
+          </span>
+          {i < steps.length - 1 && <span className="text-hairline">→</span>}
+        </div>
+      ))}
     </div>
   );
 }
