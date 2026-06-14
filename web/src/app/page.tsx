@@ -144,7 +144,7 @@ function ImportView() {
             <Stepper needsReview={summary.stats.defaulted} />
 
             <div className="flex flex-wrap gap-3">
-              <Button className="cta-pulse" onClick={() => router.push("/review")}>
+              <Button className="cta-pulse" onClick={() => router.push("/transactions?review=1")}>
                 {summary.stats.defaulted > 0
                   ? t("import.reviewN", { n: summary.stats.defaulted })
                   : t("import.reviewAll")}

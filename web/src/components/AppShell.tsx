@@ -11,7 +11,7 @@ import { useT } from "@/lib/i18n";
 
 const NAV = [
   { href: "/", key: "nav.import", icon: Upload },
-  { href: "/review", key: "nav.review", icon: ListChecks },
+  { href: "/transactions", key: "nav.transactions", icon: ListChecks },
   { href: "/dashboard", key: "nav.dashboard", icon: LayoutDashboard },
   { href: "/export", key: "nav.export", icon: Download },
   { href: "/settings", key: "nav.settings", icon: Settings },
@@ -42,7 +42,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {NAV.map(({ href, key, icon: Icon }) => {
                 const active =
                   href === "/" ? pathname === "/" : pathname.startsWith(href);
-                const badge = href === "/review" && needsReview > 0 ? needsReview : null;
+                const badge = href === "/transactions" && needsReview > 0 ? needsReview : null;
                 return (
                   <Link
                     key={href}
