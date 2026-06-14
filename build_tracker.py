@@ -27,7 +27,11 @@ from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.formatting.rule import FormulaRule
 from openpyxl.workbook.defined_name import DefinedName
 
-# --- 3-bucket taxonomy (must match instructions.md exactly) --------------------
+# --- Spending taxonomy ---------------------------------------------------------
+# Money is split by transaction TYPE. "Fixed Needs"/"Variable Wants" are spending;
+# "Transfer" is money moved (savings/investment + person-to-person) and is EXCLUDED
+# from spending. Savings is an outcome (Income - Spending), evaluated as a share of
+# income against the 50/30/20 rule.
 CATEGORIES = {
     "Fixed Needs": [
         "Accommodation/Rent", "Transport", "Insurance",
@@ -37,12 +41,20 @@ CATEGORIES = {
         "Dining Out/Cafes", "Entertainment/Hobbies", "Subscriptions",
         "Shopping", "Travel",
     ],
-    "Future Savings": [
-        "Emergency Fund", "Investments", "General Savings",
+    "Transfer": [
+        "Savings / Investment", "Personal Transfer", "Reimbursement",
+        "Other Transfer",
     ],
 }
-TARGETS = {"Fixed Needs": 0.50, "Variable Wants": 0.30, "Future Savings": 0.20}
+SPENDING_PILLARS = ["Fixed Needs", "Variable Wants"]
+TRANSFER_PILLAR = "Transfer"
+
+# Budget buckets for the 50/30/20 view (share of income).
+BUDGET_TARGETS = {"Needs": 0.50, "Wants": 0.30, "Savings": 0.20}
+
 DEFAULT_CATEGORY = ("Variable Wants", "Shopping")  # fallback for unknown merchants
+TRANSFER_DEFAULT = ("Transfer", "Personal Transfer")
+SAVINGS_DEFAULT = ("Transfer", "Savings / Investment")
 
 # --- Merchant -> (Pillar, Sub-Category) rules ---------------------------------
 # Order matters: first matching keyword wins. Matched case-insensitively against
@@ -80,6 +92,35 @@ RULES = [
 
 INCOME_KEYWORDS = re.compile(r"GIRO - SALARY|\bSALARY\b|INFI\s*NEON|TECHNOLOG\s*SALA", re.I)
 
+# Investment / savings platforms — money here is a transfer, not spending.
+INVESTMENT_RE = re.compile(
+    r"SYFE|ENDOWUS|STASHAWAY|FSMONE|FUNDSUPERMART|MOOMOO|FUTU|TIGER BROKERS|"
+    r"INTERACTIVE BROKERS|\bIBKR\b|WEBULL|SAXO|POEMS|DBS INVEST|REGULAR SAVINGS|"
+    r"FIXED DEPOSIT|\bSSB\b|SINGAPORE SAVINGS BOND|CPF|SRS|GIGANTIQ|SINGLIFE",
+    re.I,
+)
+
+
+def detect_transfer(desc: str):
+    """Return (pillar, sub) if the row is a transfer (money moved, not spent)."""
+    if INVESTMENT_RE.search(desc):
+        return SAVINGS_DEFAULT
+    d = desc.upper()
+    # Person-to-person: mobile PayNow / "Transfer - Mobile" / fund transfer to a
+    # named individual. UEN payments are businesses -> treated as spending.
+    looks_p2p = (
+        "PAYNOW-MOBILE" in d
+        or re.search(r"TRANSFER\s*-\s*MOBILE", d)
+        or (
+            re.search(r"FAST PAYMENT|FUND TRANSFER|PAYMENT/TRANSFER", d)
+            and re.search(r"\bTO\s+[A-Z]", d)
+            and "PAYNOW-UEN" not in d
+        )
+    )
+    if looks_p2p:
+        return TRANSFER_DEFAULT
+    return None
+
 
 def find_csv() -> str:
     files = sorted(glob.glob("TransactionHistory_*.csv"))
@@ -93,11 +134,14 @@ def normalize(text: str) -> str:
 
 
 def categorize(desc: str):
-    """Return (pillar, sub, matched). Unknown merchants fall back to DEFAULT."""
+    """Return (pillar, sub, kind) where kind is 'rule', 'transfer', or 'default'."""
     for pattern, (pillar, sub) in RULES:
         if re.search(pattern, desc, re.I):
-            return pillar, sub, True
-    return DEFAULT_CATEGORY[0], DEFAULT_CATEGORY[1], False
+            return pillar, sub, "rule"
+    transfer = detect_transfer(desc)
+    if transfer:
+        return transfer[0], transfer[1], "transfer"
+    return DEFAULT_CATEGORY[0], DEFAULT_CATEGORY[1], "default"
 
 
 def parse_csv(path: str) -> pd.DataFrame:
@@ -159,35 +203,45 @@ def main():
             continue
         if withdrawal == 0:
             continue
-        pillar, sub, matched = categorize(desc)
+        pillar, sub, kind = categorize(desc)
+        if kind == "transfer":
+            note = "transfer - excluded from spending"
+        elif kind == "default":
+            note = "auto-default (Shopping) - retag if needed"
+        else:
+            note = ""
         rows.append({
             "Date": dt,
             "Description": desc,
             "Amount": round(withdrawal, 2),
             "Main Pillar": pillar,
             "Sub-Category": sub,
-            "Notes": "" if matched else "auto-default (Shopping) - retag if needed",
+            "Notes": note,
             "_month": month,
         })
 
     tx = pd.DataFrame(rows)
     build_workbook(tx, income_by_month, csv_path)
-    n_default = (tx["Notes"] != "").sum()
-    print(f"Parsed {len(tx)} spend rows from {csv_path}")
-    print(f"Matched a merchant rule: {len(tx) - n_default}; defaulted to Shopping: {n_default}")
+    n_default = (tx["Main Pillar"].isin(SPENDING_PILLARS) & (tx["Notes"].str.startswith("auto-default"))).sum()
+    n_transfer = (tx["Main Pillar"] == TRANSFER_PILLAR).sum()
+    n_spend = tx["Main Pillar"].isin(SPENDING_PILLARS).sum()
+    print(f"Parsed {len(tx)} outflow rows from {csv_path}")
+    print(f"Spending rows: {n_spend} (defaulted to Shopping: {n_default}); transfers: {n_transfer}")
     print(f"Months present: {sorted(m for m in tx['_month'].unique() if m)}")
     print(f"Detected salary income by month: {income_by_month}")
     print("Wrote MonthlyExpenseTracker.xlsx")
 
 
 # ------------------------------------------------------------------ styling ---
-# Flat-UI data-viz palette: charcoal, persian-green, saffron, coral.
-CHARCOAL = "264653"
-GREEN = "2A9D8F"
-SAFFRON = "E9C46A"
-ORANGE = "F4A261"
-CORAL = "E76F51"
-PILLAR_COLORS = [CHARCOAL, GREEN, SAFFRON]  # Fixed / Wants / Savings
+# Apple-inspired palette: ink, Action Blue, iOS orange/green.
+CHARCOAL = "1D1D1F"   # ink (headers/titles)
+GREEN = "34C759"      # savings / positive
+SAFFRON = "FF9500"    # wants / warning
+ORANGE = "FF9500"
+CORAL = "FF3B30"      # spent / negative
+BLUE = "0066CC"       # needs / accent
+PILLAR_COLORS = [BLUE, SAFFRON]          # spending pie: Fixed Needs / Variable Wants
+BUDGET_COLORS = [BLUE, SAFFRON, GREEN]   # budget bars: Needs / Wants / Savings
 
 THIN = Side(style="thin", color="DCE3EA")
 BORDER = Border(left=THIN, right=THIN, top=THIN, bottom=THIN)
@@ -263,11 +317,11 @@ def _build_setup(wb, ws, months, income_by_month, pillars):
     wb.defined_names.add(
         DefinedName("Pillars", attr_text=f"Setup!$A$4:$A${3 + len(pillars)}"))
 
-    ws["A11"] = "Baseline targets"
+    ws["A11"] = "Baseline targets (% of income)"
     ws["A11"].font = LABEL_FONT
-    for i, p in enumerate(pillars):
-        ws.cell(row=12 + i, column=1, value=p)
-        tc = ws.cell(row=12 + i, column=2, value=TARGETS[p])
+    for i, (bucket, val) in enumerate(BUDGET_TARGETS.items()):
+        ws.cell(row=12 + i, column=1, value=bucket)
+        tc = ws.cell(row=12 + i, column=2, value=val)
         tc.number_format = "0%"
 
     # Month options for the dropdown: "All" + each month present.
@@ -373,14 +427,17 @@ def _build_dashboard(ws, pillars, months, dv_max):
 
     drange = f'{dat},">="&StartDate,{dat},"<="&EndDate'
 
-    # --- Summary cards ---
+    # --- Summary cards (spending excludes transfers; savings is an outcome) ---
+    needs_f = f'SUMIFS({amt},{pil},"Fixed Needs",{drange})'
+    wants_f = f'SUMIFS({amt},{pil},"Variable Wants",{drange})'
     cards = [
         ("Total Income", '=IF($B$3="All",SUM(IncomeAmounts),'
-                         'SUMIFS(IncomeAmounts,IncomeMonths,$B$3))', GREEN),
-        ("Total Spent", f"=SUMIFS({amt},{drange})", CORAL),
-        ("Remaining", "=B5-B6", CHARCOAL),
+                         'SUMIFS(IncomeAmounts,IncomeMonths,$B$3))', BLUE, "money"),
+        ("Total Spent", f"={needs_f}+{wants_f}", CORAL, "money"),
+        ("Saved (Income - Spent)", "=B5-B6", GREEN, "money"),
+        ("Savings Rate", "=IF(B5=0,0,B7/B5)", CHARCOAL, "pct"),
     ]
-    for i, (label, formula, color) in enumerate(cards):
+    for i, (label, formula, color, kind) in enumerate(cards):
         r = 5 + i
         lc = ws.cell(row=r, column=1, value=label)
         lc.font = Font(bold=True, color="FFFFFF")
@@ -388,33 +445,38 @@ def _build_dashboard(ws, pillars, months, dv_max):
         lc.alignment = Alignment(horizontal="left", vertical="center", indent=1)
         lc.border = BORDER
         vc = ws.cell(row=r, column=2, value=formula)
-        vc.number_format = '#,##0.00'
+        vc.number_format = "0.0%" if kind == "pct" else "#,##0.00"
         vc.font = Font(bold=True, size=12, color=color)
         vc.alignment = RIGHT
         vc.border = BORDER
         ws.row_dimensions[r].height = 22
 
-    # --- Pillar breakdown table ---
-    hr = 9
-    ws.cell(row=hr, column=1, value="Pillar breakdown").font = SUBTITLE_FONT
+    # --- 50/30/20 budget table (share of income) ---
+    hr = 10
+    ws.cell(row=hr, column=1, value="50 / 30 / 20 - share of income").font = SUBTITLE_FONT
     hr += 1
-    for c, h in enumerate(["Pillar", "Actual Spent", "Actual %", "Target %", "Status"], 1):
+    for c, h in enumerate(["Bucket", "Amount", "Actual %", "Target %", "Status"], 1):
         ws.cell(row=hr, column=c, value=h)
     style_header_row(ws, hr, 5)
     first = hr + 1
-    for i, p in enumerate(pillars):
+    budget = [
+        ("Needs", f"={needs_f}", BUDGET_TARGETS["Needs"], "<="),
+        ("Wants", f"={wants_f}", BUDGET_TARGETS["Wants"], "<="),
+        ("Savings", "=$B$7", BUDGET_TARGETS["Savings"], ">="),
+    ]
+    for i, (bucket, amount_f, target, op) in enumerate(budget):
         row = first + i
-        ws.cell(row=row, column=1, value=p)
-        sp = ws.cell(row=row, column=2, value=f'=SUMIFS({amt},{pil},"{p}",{drange})')
+        ws.cell(row=row, column=1, value=bucket)
+        sp = ws.cell(row=row, column=2, value=amount_f)
         sp.number_format = "#,##0.00"
         sp.alignment = RIGHT
-        pct = ws.cell(row=row, column=3, value=f"=IF($B$6=0,0,B{row}/$B$6)")
+        pct = ws.cell(row=row, column=3, value=f"=IF($B$5=0,0,B{row}/$B$5)")
         pct.number_format = "0.0%"
         pct.alignment = CENTER
-        tg = ws.cell(row=row, column=4, value=TARGETS[p])
+        tg = ws.cell(row=row, column=4, value=target)
         tg.number_format = "0%"
         tg.alignment = CENTER
-        if p == "Future Savings":
+        if op == ">=":
             st = f'=IF(C{row}>=D{row},"On track","Below target")'
         else:
             st = f'=IF(C{row}<=D{row},"On track","Over budget")'
@@ -425,7 +487,7 @@ def _build_dashboard(ws, pillars, months, dv_max):
         if i % 2 == 1:
             for c in range(1, 6):
                 ws.cell(row=row, column=c).fill = BAND_FILL
-    last = first + len(pillars) - 1
+    last = first + len(budget) - 1
 
     for word in ("Over budget", "Below target"):
         ws.conditional_formatting.add(
@@ -434,6 +496,14 @@ def _build_dashboard(ws, pillars, months, dv_max):
     ws.conditional_formatting.add(
         f"E{first}:E{last}",
         FormulaRule(formula=[f'$E{first}="On track"'], fill=GREEN_FILL))
+
+    # Transfers line (excluded from spending).
+    trow = last + 1
+    ws.cell(row=trow, column=1, value="Transfers (excluded)").font = Font(italic=True, size=9, color="999999")
+    tvc = ws.cell(row=trow, column=2, value=f'=SUMIFS({amt},{pil},"Transfer",{drange})')
+    tvc.number_format = "#,##0.00"
+    tvc.alignment = RIGHT
+    tvc.font = Font(italic=True, size=9, color="999999")
 
     # --- Sub-category breakdown table ---
     sr = last + 3
@@ -444,7 +514,7 @@ def _build_dashboard(ws, pillars, months, dv_max):
     style_header_row(ws, sr, 3)
     sub_first = sr + 1
     row = sub_first
-    for pi, p in enumerate(pillars):
+    for p in SPENDING_PILLARS:
         for s in CATEGORIES[p]:
             ws.cell(row=row, column=1, value=s)
             ws.cell(row=row, column=2, value=p)
@@ -460,14 +530,13 @@ def _build_dashboard(ws, pillars, months, dv_max):
     sub_last = row - 1
 
     # ---------------------------------------------------------------- charts ---
-    # 1) Doughnut: spend by pillar (3 slices, clear % labels).
-    # 1) Pie: spend by pillar — labels OUTSIDE the slices with leader lines so
-    #    they never overlap the chart or each other.
+    # 1) Pie: spending split (Needs vs Wants), labels outside with leader lines.
     pie = PieChart()
-    pie.title = "Spend by Pillar"
+    pie.title = "Spending: Needs vs Wants"
     pie.height, pie.width = 8.5, 14
-    pdata = Reference(ws, min_col=2, min_row=hr, max_row=last)  # incl header for title
-    pcats = Reference(ws, min_col=1, min_row=first, max_row=last)
+    pie_last = first + 1  # Needs + Wants rows only (exclude Savings)
+    pdata = Reference(ws, min_col=2, min_row=hr, max_row=pie_last)  # incl header for title
+    pcats = Reference(ws, min_col=1, min_row=first, max_row=pie_last)
     pie.add_data(pdata, titles_from_data=True)
     pie.set_categories(pcats)
     pie.dataLabels = DataLabelList()
@@ -482,10 +551,10 @@ def _build_dashboard(ws, pillars, months, dv_max):
     pie.legend.position = "b"
     ws.add_chart(pie, "G3")
 
-    # 2) Column: Actual % vs Target % per pillar.
+    # 2) Column: Actual % vs Target % (share of income) for Needs/Wants/Savings.
     bar = BarChart()
     bar.type = "col"
-    bar.title = "Actual % vs Target % by Pillar"
+    bar.title = "Actual vs Target (% of income)"
     bar.height, bar.width = 8.5, 14
     bdata = Reference(ws, min_col=3, max_col=4, min_row=hr, max_row=last)
     bcats = Reference(ws, min_col=1, min_row=first, max_row=last)
@@ -500,8 +569,8 @@ def _build_dashboard(ws, pillars, months, dv_max):
     bar.dataLabels.showVal = True
     bar.dataLabels.numFmt = "0%"
     bar.dataLabels.dLblPos = "outEnd"
-    bar.series[0].graphicalProperties = GraphicalProperties(solidFill=GREEN)
-    bar.series[1].graphicalProperties = GraphicalProperties(solidFill=SAFFRON)
+    bar.series[0].graphicalProperties = GraphicalProperties(solidFill=BLUE)
+    bar.series[1].graphicalProperties = GraphicalProperties(solidFill="D2D2D7")
     bar.legend.position = "b"
     ws.add_chart(bar, "G21")
 
@@ -521,14 +590,15 @@ def _build_dashboard(ws, pillars, months, dv_max):
     hbar.dataLabels.showVal = True
     hbar.dataLabels.numFmt = "#,##0"
     hbar.dataLabels.dLblPos = "outEnd"
-    hbar.series[0].graphicalProperties = GraphicalProperties(solidFill=GREEN)
+    hbar.series[0].graphicalProperties = GraphicalProperties(solidFill=BLUE)
     ws.add_chart(hbar, "G39")
 
     note = sub_last + 2
     ws.cell(row=note, column=1, value=(
-        "Income is auto-detected from monthly salary deposits (Setup tab) - edit there if "
-        "other income applies. Transactions flagged 'auto-default' were uncategorized and "
-        "placed under Shopping; retag them for accurate pillar splits."))
+        "Spending excludes transfers (savings/investment + person-to-person), which are "
+        "money moved, not spent. Savings = Income - Spending. Income is auto-detected from "
+        "monthly salary deposits (Setup tab). Rows flagged 'auto-default' were uncategorized "
+        "and placed under Shopping; retag them for accurate splits."))
     ws.cell(row=note, column=1).font = Font(italic=True, size=9, color="999999")
 
     ws.column_dimensions["A"].width = 24

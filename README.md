@@ -68,10 +68,9 @@ pip install pandas openpyxl
 python build_tracker.py
 ```
 
-> Note: the Python generator still uses the original 3-bucket model (incl. a
-> "Future Savings" spend pillar). The web app has since moved to the
-> savings-as-outcome + transfers model described above. See
-> [`ROADMAP.md`](ROADMAP.md) for the planned reconciliation.
+> Note: both the web app and this generator now use the same model — spending is
+> Needs/Wants only, savings is an outcome (`Income − Spending`), and transfers
+> (savings/investment + P2P) are excluded from spending.
 
 ---
 

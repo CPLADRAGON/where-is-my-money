@@ -96,22 +96,15 @@ a follow-up if you want the Excel output to match.
 
 ## P0 — Visual redesign (do early; most things inherit from it)
 
+### 6. New visual design — ✅ DONE (Apple-inspired)
+Re-skinned to an **Apple-inspired** theme (iOS grouped-card look): parchment page,
+white rounded cards, single Action-Blue accent, SF Pro system font, iOS system
+semantic + chart colors, pill buttons, lighter (semibold) headings. Implemented by
+remapping the centralized theme tokens in `web/src/app/globals.css` plus the chart
+palette; the Excel generator was given a matching palette too.
+
 ### 6. New visual design
-- **What:** Replace the current Wise-inspired theme with a look you actually like.
-- **Why:** Current design is not to taste; the logo, dark palette, and component
-  styling all depend on this decision, so settling it first avoids rework.
-- **Approach:**
-  - Pick a direction first (mood: minimal / playful / premium-fintech / editorial;
-    light or dark default; accent color). Browse `VoltAgent/awesome-design-md`
-    again or share references/screenshots.
-  - Theme is centralized in `web/src/app/globals.css` (`@theme` tokens: colors,
-    radius, shadows, fonts) and a tiny UI kit (`Button`, `Card`, `Badge`,
-    `Select`). Re-skinning means editing tokens + those components — pages mostly
-    use semantic classes, so the blast radius is small.
-  - Update chart colors in `web/src/lib/taxonomy.ts` (`PILLAR_COLORS`) and
-    `DashboardCharts.tsx` to match.
-- **Effort:** M (1 token/design pass + component polish).
-- **Dependencies:** Needs a design decision from you. Blocks #2, #4, and ideally #7.
+_(Historical detail — implemented as the Apple-inspired theme above.)_
 
 ---
 
