@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { HydrationGate } from "@/components/HydrationGate";
 import { Card, CardBody, CardTitle } from "@/components/Card";
@@ -44,6 +45,18 @@ export default function Page() {
 
 function DashboardView() {
   const t = useT();
+  const router = useRouter();
+  function drill(extra: Record<string, string>) {
+    const p = new URLSearchParams(extra);
+    if (rangeMode !== "all" && rangeMode !== "custom") p.set("month", rangeMode);
+    else if (rangeMode === "custom") {
+      if (start) p.set("from", start);
+      if (end) p.set("to", end);
+    }
+    router.push(`/transactions?${p.toString()}`);
+  }
+  const pillarForBucket = (b: string) =>
+    b === "Needs" ? "Fixed Needs" : b === "Wants" ? "Variable Wants" : null;
   const transactions = useStore((s) => s.transactions);
   const months = useStore((s) => s.months);
   const detectedIncome = useStore((s) => s.detectedIncome);
@@ -118,6 +131,7 @@ function DashboardView() {
           )}
         </div>
       </div>
+      <p className="-mt-3 text-xs text-mute">{t("dash.tapHint")}</p>
 
       {/* Summary cards */}
       <div className="grid gap-4 sm:grid-cols-4">
@@ -151,14 +165,17 @@ function DashboardView() {
             />
           </div>
           {transfers > 0 && (
-            <p className="mt-1 text-xs text-mute">
+            <button
+              className="mt-1 block text-left text-xs text-mute hover:text-primary"
+              onClick={() => drill({ type: "transfer" })}
+            >
               {invested > 0
                 ? t("dash.flowExcludes", {
                     t: formatSGD(transfers),
                     i: formatSGD(invested),
                   })
                 : t("dash.flowExcludesShort", { t: formatSGD(transfers) })}
-            </p>
+            </button>
           )}
         </CardBody>
       </Card>
@@ -181,7 +198,18 @@ function DashboardView() {
               <tbody>
                 {budgetRows.map((r) => (
                   <tr key={r.bucket} className="border-t border-hairline/60">
-                    <td className="py-2 font-medium">{t(`bucket.${r.bucket}`)}</td>
+                    <td className="py-2 font-medium">
+                      {pillarForBucket(r.bucket) ? (
+                        <button
+                          className="text-primary underline-offset-2 hover:underline"
+                          onClick={() => drill({ pillar: pillarForBucket(r.bucket)! })}
+                        >
+                          {t(`bucket.${r.bucket}`)}
+                        </button>
+                      ) : (
+                        <span title={t("dash.savingsTargetNote")}>{t(`bucket.${r.bucket}`)}</span>
+                      )}
+                    </td>
                     <td className="py-2 text-right tabular">{formatSGD(r.amount)}</td>
                     <td className="py-2 text-right tabular">
                       {income > 0 ? formatPct(r.actual) : "—"}
@@ -216,7 +244,7 @@ function DashboardView() {
           <CardBody>
             <CardTitle>{t("chart.needsVsWants")}</CardTitle>
             <div className="mt-2">
-              <PillarPie data={pieData} />
+              <PillarPie data={pieData} onSliceClick={(p) => drill({ pillar: p })} />
             </div>
           </CardBody>
         </Card>
@@ -232,7 +260,7 @@ function DashboardView() {
           <CardBody>
             <CardTitle>{t("chart.bySub")}</CardTitle>
             <div className="mt-2">
-              <SubBars data={subRows} />
+              <SubBars data={subRows} onBarClick={(s) => drill({ sub: s })} />
             </div>
           </CardBody>
         </Card>

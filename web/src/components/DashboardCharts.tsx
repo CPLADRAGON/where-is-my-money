@@ -42,8 +42,10 @@ const pct0 = (v: unknown) => formatPct(num(v), 0);
 /** Spend-by-pillar doughnut (Needs vs Wants). */
 export function PillarPie({
   data,
+  onSliceClick,
 }: {
   data: { pillar: SpendingPillar; amount: number }[];
+  onSliceClick?: (pillar: SpendingPillar) => void;
 }) {
   const slices = data.filter((d) => d.amount > 0);
   if (slices.length === 0) return <Empty />;
@@ -59,6 +61,8 @@ export function PillarPie({
           paddingAngle={2}
           label={(p: { percent?: number }) => formatPct(p.percent ?? 0, 0)}
           labelLine={false}
+          onClick={(_, index) => onSliceClick?.(slices[index].pillar)}
+          cursor={onSliceClick ? "pointer" : undefined}
         >
           {slices.map((d) => (
             <Cell key={d.pillar} fill={PILLAR_COLORS[d.pillar]} />
@@ -146,7 +150,13 @@ export function IncomeFlow({
   );
 }
 
-export function SubBars({ data }: { data: SubRow[] }) {
+export function SubBars({
+  data,
+  onBarClick,
+}: {
+  data: SubRow[];
+  onBarClick?: (sub: string) => void;
+}) {
   if (data.length === 0) return <Empty />;
   const height = Math.max(220, data.length * 30);
   return (
@@ -159,7 +169,13 @@ export function SubBars({ data }: { data: SubRow[] }) {
         <XAxis type="number" hide />
         <YAxis type="category" dataKey="sub" width={130} tick={{ fontSize: 11, fill: "#86868b" }} />
         <Tooltip formatter={money} />
-        <Bar dataKey="amount" fill={SUB_COLOR} radius={[0, 6, 6, 0]}>
+        <Bar
+          dataKey="amount"
+          fill={SUB_COLOR}
+          radius={[0, 6, 6, 0]}
+          onClick={(d: { payload?: SubRow }) => d.payload && onBarClick?.(d.payload.sub)}
+          cursor={onBarClick ? "pointer" : undefined}
+        >
           <LabelList dataKey="amount" position="right" formatter={moneyShort} style={{ fontSize: 11 }} />
         </Bar>
       </BarChart>

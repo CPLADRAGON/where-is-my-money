@@ -26,7 +26,8 @@ let pass = 0, fail = 0;
 function eq(actual: unknown, expected: unknown, msg: string) {
   const ok = JSON.stringify(actual) === JSON.stringify(expected);
   console.log(ok ? "PASS" : "FAIL", "-", msg);
-  ok ? pass++ : fail++;
+  if (ok) pass++;
+  else fail++;
 }
 const ids = (rows: Transaction[]) => rows.map((r) => r.id);
 
