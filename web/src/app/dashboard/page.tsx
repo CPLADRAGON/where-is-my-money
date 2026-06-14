@@ -30,6 +30,7 @@ import {
   type DateRange,
 } from "@/lib/selectors";
 import { formatSGD, formatPct, formatMonthLabel } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 export default function Page() {
   return (
@@ -42,6 +43,7 @@ export default function Page() {
 }
 
 function DashboardView() {
+  const t = useT();
   const transactions = useStore((s) => s.transactions);
   const months = useStore((s) => s.months);
   const detectedIncome = useStore((s) => s.detectedIncome);
@@ -71,10 +73,10 @@ function DashboardView() {
     return (
       <Card>
         <CardBody className="grid place-items-center gap-3 py-16 text-center">
-          <p className="text-lg font-bold">Nothing to show yet</p>
-          <p className="text-sm text-body">Import a CSV to build your dashboard.</p>
+          <p className="text-lg font-bold">{t("empty.nothing")}</p>
+          <p className="text-sm text-body">{t("empty.importPrompt")}</p>
           <Link href="/">
-            <Button>Import a file</Button>
+            <Button>{t("btn.importFile")}</Button>
           </Link>
         </CardBody>
       </Card>
@@ -86,16 +88,16 @@ function DashboardView() {
   return (
     <div className="grid gap-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("dashboard.title")}</h1>
         <div className="flex flex-wrap items-center gap-2">
           <Select value={rangeMode} onChange={(e) => setRangeMode(e.target.value)}>
-            <option value="all">All months</option>
+            <option value="all">{t("range.all")}</option>
             {months.map((m) => (
               <option key={m} value={m}>
                 {formatMonthLabel(m)}
               </option>
             ))}
-            <option value="custom">Custom range…</option>
+            <option value="custom">{t("range.custom")}</option>
           </Select>
           {rangeMode === "custom" && (
             <>
@@ -119,19 +121,19 @@ function DashboardView() {
 
       {/* Summary cards */}
       <div className="grid gap-4 sm:grid-cols-4">
-        <SummaryCard label="Income" value={income} accent="var(--color-positive)" />
-        <SummaryCard label="Spent" value={spent} accent="var(--color-negative)" />
-        <SummaryCard label="Saved" value={savings} accent="var(--color-ink-deep)" />
+        <SummaryCard label={t("card.income")} value={income} accent="var(--color-positive)" />
+        <SummaryCard label={t("card.spent")} value={spent} accent="var(--color-negative)" />
+        <SummaryCard label={t("card.saved")} value={savings} accent="var(--color-ink-deep)" />
         <Card>
           <CardBody>
-            <CardTitle>Savings rate</CardTitle>
+            <CardTitle>{t("card.savingsRate")}</CardTitle>
             <p
               className="tabular mt-2 text-3xl font-semibold"
               style={{ color: savingsRate >= 0.2 ? "var(--color-positive)" : "var(--color-warning-deep)" }}
             >
               {income > 0 ? formatPct(savingsRate, 0) : "—"}
             </p>
-            <p className="mt-1 text-xs text-mute">target ≥ 20% of income</p>
+            <p className="mt-1 text-xs text-mute">{t("dash.savingsTargetNote")}</p>
           </CardBody>
         </Card>
       </div>
@@ -139,7 +141,7 @@ function DashboardView() {
       {/* Where your income went (flow) */}
       <Card>
         <CardBody>
-          <CardTitle>Where your income went</CardTitle>
+          <CardTitle>{t("dash.flowTitle")}</CardTitle>
           <div className="mt-2">
             <IncomeFlow
               income={income}
@@ -150,9 +152,12 @@ function DashboardView() {
           </div>
           {transfers > 0 && (
             <p className="mt-1 text-xs text-mute">
-              Excludes {formatSGD(transfers)} in transfers
-              {invested > 0 ? ` (${formatSGD(invested)} to savings/investments)` : ""} —
-              these are money moved, not spent.
+              {invested > 0
+                ? t("dash.flowExcludes", {
+                    t: formatSGD(transfers),
+                    i: formatSGD(invested),
+                  })
+                : t("dash.flowExcludesShort", { t: formatSGD(transfers) })}
             </p>
           )}
         </CardBody>
@@ -161,22 +166,22 @@ function DashboardView() {
       {/* 50/30/20 budget table */}
       <Card>
         <CardBody>
-          <CardTitle>50 / 30 / 20 — share of income</CardTitle>
+          <CardTitle>{t("budget.title")}</CardTitle>
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase tracking-wide text-mute">
-                  <th className="py-2">Bucket</th>
-                  <th className="py-2 text-right">Amount</th>
-                  <th className="py-2 text-right">Actual %</th>
-                  <th className="py-2 text-right">Target %</th>
-                  <th className="py-2 text-right">Status</th>
+                  <th className="py-2">{t("th.bucket")}</th>
+                  <th className="py-2 text-right">{t("th.amount")}</th>
+                  <th className="py-2 text-right">{t("th.actual")}</th>
+                  <th className="py-2 text-right">{t("th.target")}</th>
+                  <th className="py-2 text-right">{t("th.status")}</th>
                 </tr>
               </thead>
               <tbody>
                 {budgetRows.map((r) => (
                   <tr key={r.bucket} className="border-t border-hairline/60">
-                    <td className="py-2 font-medium">{r.bucket}</td>
+                    <td className="py-2 font-medium">{t(`bucket.${r.bucket}`)}</td>
                     <td className="py-2 text-right tabular">{formatSGD(r.amount)}</td>
                     <td className="py-2 text-right tabular">
                       {income > 0 ? formatPct(r.actual) : "—"}
@@ -187,7 +192,11 @@ function DashboardView() {
                     </td>
                     <td className="py-2 text-right">
                       <Badge tone={r.onTrack ? "positive" : "negative"}>
-                        {r.onTrack ? "On track" : r.bucket === "Savings" ? "Below target" : "Over budget"}
+                        {r.onTrack
+                          ? t("status.onTrack")
+                          : r.bucket === "Savings"
+                          ? t("status.belowTarget")
+                          : t("status.overBudget")}
                       </Badge>
                     </td>
                   </tr>
@@ -196,10 +205,7 @@ function DashboardView() {
             </table>
           </div>
           {income === 0 && (
-            <p className="mt-2 text-xs text-warning-deep">
-              No income detected for this range — set it on the Settings tab so the
-              percentages and savings rate are meaningful.
-            </p>
+            <p className="mt-2 text-xs text-warning-deep">{t("dash.noIncomeNote")}</p>
           )}
         </CardBody>
       </Card>
@@ -208,7 +214,7 @@ function DashboardView() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardBody>
-            <CardTitle>Spending: Needs vs Wants</CardTitle>
+            <CardTitle>{t("chart.needsVsWants")}</CardTitle>
             <div className="mt-2">
               <PillarPie data={pieData} />
             </div>
@@ -216,7 +222,7 @@ function DashboardView() {
         </Card>
         <Card>
           <CardBody>
-            <CardTitle>Actual vs target (% of income)</CardTitle>
+            <CardTitle>{t("chart.actualVsTarget")}</CardTitle>
             <div className="mt-2">
               <BudgetBars data={budgetRows} />
             </div>
@@ -224,7 +230,7 @@ function DashboardView() {
         </Card>
         <Card>
           <CardBody>
-            <CardTitle>Spending by sub-category</CardTitle>
+            <CardTitle>{t("chart.bySub")}</CardTitle>
             <div className="mt-2">
               <SubBars data={subRows} />
             </div>
@@ -232,7 +238,7 @@ function DashboardView() {
         </Card>
         <Card>
           <CardBody>
-            <CardTitle>Monthly trend (income · spent · saved)</CardTitle>
+            <CardTitle>{t("chart.trend")}</CardTitle>
             <div className="mt-2">
               <TrendLine data={trend} />
             </div>

@@ -47,6 +47,9 @@ npx tsx scripts/smoke-parse.ts   # parser parity test vs the sample OCBC CSV
   saved bank presets; one-click clear-all (privacy reset).
 - **Export** — optional CSV and `.xlsx` (mirrors the original workbook), plus a
   **share-card builder** (selectable range + metrics + theme -> PNG).
+- **Polish** — Apple-inspired theme, **dark mode** toggle, **English / 中文**
+  language toggle, responsive layout, and an installable **PWA** (iOS "Add to
+  Home Screen" with app icons).
 
 ## Architecture
 

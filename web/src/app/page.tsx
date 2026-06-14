@@ -21,6 +21,7 @@ import { useImportStore } from "@/lib/importStore";
 import { parseDetected } from "@/lib/banks";
 import { BANK_GUIDES, DEMO_CSV } from "@/lib/demo";
 import { formatSGD } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 export default function Page() {
   return (
@@ -34,6 +35,7 @@ export default function Page() {
 
 function ImportView() {
   const router = useRouter();
+  const t = useT();
   const importData = useStore((s) => s.importData);
   const setPending = useImportStore((s) => s.setPending);
   const [summary, setSummary] = useState<
@@ -75,7 +77,7 @@ function ImportView() {
           router.push("/import/map");
           return;
         }
-        setError("Could not read that file. Please check it's a CSV export.");
+        setError(t("error.read"));
       } finally {
         setParsing(false);
       }
@@ -86,23 +88,19 @@ function ImportView() {
     <div className="grid gap-6">
       <section>
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-          Turn your bank CSV into a clean money dashboard
+          {t("import.title")}
         </h1>
-        <p className="mt-2 max-w-2xl text-body">
-          Import a statement, categorize spending into Needs / Wants / Savings, and
-          see where your money goes. Everything runs locally — your data never
-          leaves this browser.
-        </p>
+        <p className="mt-2 max-w-2xl text-body">{t("import.subtitle")}</p>
       </section>
 
       <Dropzone onFile={handleCsv} />
 
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="secondary" onClick={() => handleCsv(DEMO_CSV, "demo.csv")}>
-          <Sparkles className="size-4" /> Try demo data
+          <Sparkles className="size-4" /> {t("import.tryDemo")}
         </Button>
         <span className="inline-flex items-center gap-1.5 text-sm text-mute">
-          <ShieldCheck className="size-4 text-positive" /> 100% private &amp; offline
+          <ShieldCheck className="size-4 text-positive" /> {t("import.private")}
         </span>
       </div>
 
@@ -115,53 +113,45 @@ function ImportView() {
       {parsing && (
         <div className="flex items-center gap-3 rounded-[var(--radius-md)] border border-hairline bg-canvas px-4 py-3 text-sm font-medium text-body">
           <Loader2 className="size-4 animate-spin text-primary" />
-          Reading and categorizing your transactions…
+          {t("import.parsing")}
         </div>
       )}
 
       {summary && (
         <Card ref={summaryRef} className="fade-in-up overflow-hidden">
           <div className="flex items-center gap-2 bg-positive/10 px-5 py-3 text-sm font-semibold text-positive-deep">
-            <CheckCircle2 className="size-5" /> Imported {summary.stats.total} transactions
-            from {summary.bank}
+            <CheckCircle2 className="size-5" />{" "}
+            {t("import.importedN", { n: summary.stats.total, bank: summary.bank })}
           </div>
           <CardBody className="grid gap-5">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Stat label="Transactions" value={String(summary.stats.total)} />
-              <Stat label="Months" value={String(summary.months)} />
+              <Stat label={t("stat.transactions")} value={String(summary.stats.total)} />
+              <Stat label={t("stat.months")} value={String(summary.months)} />
               <Stat
-                label="Auto-categorized"
+                label={t("stat.autocat")}
                 value={String(summary.stats.autoCategorized)}
               />
-              <Stat label="Need review" value={String(summary.stats.defaulted)} tone="warn" />
+              <Stat label={t("stat.needReview")} value={String(summary.stats.defaulted)} tone="warn" />
             </div>
             <div className="text-sm text-body">
-              Detected income:{" "}
+              {t("import.detectedIncome")}{" "}
               <strong className="tabular">{formatSGD(summary.stats.income)}</strong>
               {summary.stats.transfers > 0 && (
-                <>
-                  {" · "}
-                  {summary.stats.transfers} transfer
-                  {summary.stats.transfers === 1 ? "" : "s"} excluded from spending
-                </>
+                <> · {t("import.transfersExcluded", { n: summary.stats.transfers })}</>
               )}
             </div>
 
-            {/* Next-steps stepper */}
             <Stepper needsReview={summary.stats.defaulted} />
 
             <div className="flex flex-wrap gap-3">
-              <Button
-                className="cta-pulse"
-                onClick={() => router.push("/review")}
-              >
+              <Button className="cta-pulse" onClick={() => router.push("/review")}>
                 {summary.stats.defaulted > 0
-                  ? `Review ${summary.stats.defaulted} uncategorized`
-                  : "Review transactions"}
+                  ? t("import.reviewN", { n: summary.stats.defaulted })
+                  : t("import.reviewAll")}
                 <ArrowRight className="size-4" />
               </Button>
               <Button variant="tertiary" onClick={() => router.push("/dashboard")}>
-                Skip to dashboard
+                {t("import.skipDashboard")}
               </Button>
             </div>
           </CardBody>
@@ -174,14 +164,15 @@ function ImportView() {
 }
 
 function Stepper({ needsReview }: { needsReview: number }) {
+  const t = useT();
   const steps = [
-    { label: "Imported", done: true },
+    { label: t("step.imported"), done: true },
     {
-      label: needsReview > 0 ? `Review (${needsReview})` : "Review",
+      label: needsReview > 0 ? `${t("step.review")} (${needsReview})` : t("step.review"),
       done: false,
       current: true,
     },
-    { label: "Dashboard", done: false },
+    { label: t("step.dashboard"), done: false },
   ];
   return (
     <div className="flex items-center gap-2 text-sm">
@@ -243,14 +234,12 @@ function Stat({
 }
 
 function BankGuides() {
+  const t = useT();
   const [open, setOpen] = useState<string | null>("OCBC");
   return (
     <section className="grid gap-3">
-      <h2 className="text-lg font-bold">Accepted formats &amp; how to get your CSV</h2>
-      <p className="text-sm text-body">
-        OCBC is auto-detected. Any other bank works too — you&apos;ll map the
-        columns once and we&apos;ll remember it.
-      </p>
+      <h2 className="text-lg font-bold">{t("import.guidesTitle")}</h2>
+      <p className="text-sm text-body">{t("import.guidesIntro")}</p>
       <div className="grid gap-2">
         {BANK_GUIDES.map((g) => {
           const isOpen = open === g.bank;
@@ -277,9 +266,9 @@ function BankGuides() {
         })}
       </div>
       <p className="text-sm text-mute">
-        Unknown format?{" "}
+        {t("import.unknownFormat")}{" "}
         <Link href="/import/map" className="font-semibold text-ink-deep underline">
-          Map columns manually
+          {t("import.mapManually")}
         </Link>
         .
       </p>

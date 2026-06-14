@@ -13,6 +13,7 @@ import { useStore } from "@/lib/store";
 import { CATEGORIES, PILLARS, isSpending, type Pillar } from "@/lib/taxonomy";
 import { formatSGD, formatMonthLabel } from "@/lib/utils";
 import type { Provenance } from "@/lib/types";
+import { useT } from "@/lib/i18n";
 
 export default function Page() {
   return (
@@ -32,6 +33,7 @@ const PROV_TONE: Record<Provenance, "rule" | "learned" | "manual" | "default"> =
 };
 
 function ReviewView() {
+  const tr = useT();
   const transactions = useStore((s) => s.transactions);
   const setCategory = useStore((s) => s.setCategory);
   const bulkSetCategory = useStore((s) => s.bulkSetCategory);
@@ -82,16 +84,13 @@ function ReviewView() {
     <div className="grid gap-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Review &amp; categorize</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{tr("review.title")}</h1>
           <p className="mt-1 text-sm text-body">
             {needsReview > 0 ? (
-              <>
-                <strong className="text-warning-deep">{needsReview}</strong> still need a
-                category. Recurring payees are remembered automatically.
-              </>
+              tr("review.needN", { n: needsReview })
             ) : (
               <span className="inline-flex items-center gap-1.5 text-positive-deep">
-                <CheckCircle2 className="size-4" /> Everything is categorized.
+                <CheckCircle2 className="size-4" /> {tr("review.allDone")}
               </span>
             )}
           </p>
@@ -102,7 +101,7 @@ function ReviewView() {
             size="sm"
             onClick={() => setOnlyReview((v) => !v)}
           >
-            <Filter className="size-4" /> {onlyReview ? "Showing to-review" : "Show all"}
+            <Filter className="size-4" /> {onlyReview ? tr("review.showToReview") : tr("review.showAll")}
           </Button>
           <label className="flex items-center gap-2 rounded-full bg-canvas-soft px-3 py-1.5 text-sm font-medium">
             <input
@@ -110,7 +109,7 @@ function ReviewView() {
               checked={remember}
               onChange={(e) => setRemember(e.target.checked)}
             />
-            Remember merchant
+            {tr("review.rememberMerchant")}
           </label>
         </div>
       </div>
@@ -118,7 +117,7 @@ function ReviewView() {
       {selected.size > 0 && (
         <Card>
           <CardBody className="flex flex-wrap items-center gap-3">
-            <span className="text-sm font-semibold">{selected.size} selected →</span>
+            <span className="text-sm font-semibold">{tr("review.selectedN", { n: selected.size })}</span>
             <select
               className="h-9 rounded-[var(--radius-md)] border border-hairline bg-canvas px-2 text-sm"
               value={bulkPillar}
@@ -142,10 +141,10 @@ function ReviewView() {
               ))}
             </select>
             <Button size="sm" onClick={applyBulk}>
-              Apply to {selected.size}
+              {tr("review.applyTo", { n: selected.size })}
             </Button>
             <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
-              Clear
+              {tr("review.clear")}
             </Button>
           </CardBody>
         </Card>
@@ -157,11 +156,11 @@ function ReviewView() {
             <thead>
               <tr className="border-b border-hairline bg-canvas-soft text-left text-xs uppercase tracking-wide text-mute">
                 <th className="w-10 px-3 py-2"></th>
-                <th className="px-3 py-2">Date</th>
-                <th className="px-3 py-2">Description</th>
-                <th className="px-3 py-2 text-right">Amount</th>
-                <th className="px-3 py-2">Source</th>
-                <th className="px-3 py-2">Category</th>
+                <th className="px-3 py-2">{tr("th.date")}</th>
+                <th className="px-3 py-2">{tr("th.description")}</th>
+                <th className="px-3 py-2 text-right">{tr("th.amount")}</th>
+                <th className="px-3 py-2">{tr("th.source")}</th>
+                <th className="px-3 py-2">{tr("th.category")}</th>
               </tr>
             </thead>
             <tbody>
@@ -199,7 +198,7 @@ function ReviewView() {
                       />
                       {!isSpending(t.pillar) && (
                         <span className="whitespace-nowrap rounded-full bg-canvas-soft px-2 py-0.5 text-[10px] font-semibold text-mute">
-                          not spending
+                          {tr("review.notSpending")}
                         </span>
                       )}
                     </div>
@@ -215,13 +214,14 @@ function ReviewView() {
 }
 
 function EmptyState() {
+  const tr = useT();
   return (
     <Card>
       <CardBody className="grid place-items-center gap-3 py-16 text-center">
-        <p className="text-lg font-bold">No transactions yet</p>
-        <p className="text-sm text-body">Import a CSV to start categorizing.</p>
+        <p className="text-lg font-bold">{tr("review.emptyTitle")}</p>
+        <p className="text-sm text-body">{tr("review.emptyBody")}</p>
         <Link href="/">
-          <Button>Import a file</Button>
+          <Button>{tr("btn.importFile")}</Button>
         </Link>
       </CardBody>
     </Card>

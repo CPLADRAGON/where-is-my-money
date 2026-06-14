@@ -24,6 +24,7 @@ import {
 import { exportCsv, download } from "@/lib/exporters/csv";
 import { exportXlsx } from "@/lib/exporters/xlsx";
 import { formatSGD, formatPct, formatMonthLabel } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 export default function Page() {
   return (
@@ -36,14 +37,15 @@ export default function Page() {
 }
 
 const METRICS = [
-  { id: "totals", label: "Income / Spent / Remaining" },
-  { id: "pillars", label: "Pillar split" },
-  { id: "top", label: "Top categories" },
-  { id: "targets", label: "Targets vs actual" },
+  { id: "totals", key: "metric.totals" },
+  { id: "pillars", key: "metric.pillars" },
+  { id: "top", key: "metric.top" },
+  { id: "targets", key: "metric.targets" },
 ] as const;
 type MetricId = (typeof METRICS)[number]["id"];
 
 function ExportView() {
+  const t = useT();
   const transactions = useStore((s) => s.transactions);
   const months = useStore((s) => s.months);
   const detectedIncome = useStore((s) => s.detectedIncome);
@@ -66,9 +68,9 @@ function ExportView() {
     return (
       <Card>
         <CardBody className="grid place-items-center gap-3 py-16 text-center">
-          <p className="text-lg font-bold">Nothing to export yet</p>
+          <p className="text-lg font-bold">{t("export.emptyTitle")}</p>
           <Link href="/">
-            <Button>Import a file</Button>
+            <Button>{t("btn.importFile")}</Button>
           </Link>
         </CardBody>
       </Card>
@@ -103,12 +105,12 @@ function ExportView() {
 
   return (
     <div className="grid gap-5">
-      <h1 className="text-2xl font-semibold tracking-tight">Export</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">{t("export.title")}</h1>
 
       {/* File exports */}
       <Card>
         <CardBody className="flex flex-wrap items-center gap-3">
-          <CardTitle>Data files</CardTitle>
+          <CardTitle>{t("export.dataFiles")}</CardTitle>
           <div className="flex flex-wrap gap-3">
             <Button variant="secondary" onClick={() => exportCsv(transactions)}>
               <FileDown className="size-4" /> CSV
@@ -134,11 +136,11 @@ function ExportView() {
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
         <Card>
           <CardBody className="grid gap-4">
-            <CardTitle>Share card</CardTitle>
+            <CardTitle>{t("export.shareCard")}</CardTitle>
             <div className="grid gap-1">
-              <label className="text-sm font-semibold">Range</label>
+              <label className="text-sm font-semibold">{t("export.range")}</label>
               <Select value={rangeMode} onChange={(e) => setRangeMode(e.target.value)}>
-                <option value="all">All months</option>
+                <option value="all">{t("range.all")}</option>
                 {months.map((m) => (
                   <option key={m} value={m}>
                     {formatMonthLabel(m)}
@@ -147,7 +149,7 @@ function ExportView() {
               </Select>
             </div>
             <div className="grid gap-2">
-              <label className="text-sm font-semibold">Include</label>
+              <label className="text-sm font-semibold">{t("export.include")}</label>
               {METRICS.map((m) => (
                 <label key={m.id} className="flex items-center gap-2 text-sm">
                   <input
@@ -155,31 +157,31 @@ function ExportView() {
                     checked={metrics.has(m.id)}
                     onChange={() => toggleMetric(m.id)}
                   />
-                  {m.label}
+                  {t(m.key)}
                 </label>
               ))}
             </div>
             <div className="grid gap-1">
-              <label className="text-sm font-semibold">Theme</label>
+              <label className="text-sm font-semibold">{t("export.theme")}</label>
               <div className="flex gap-2">
                 <Button
                   size="sm"
                   variant={theme === "light" ? "primary" : "secondary"}
                   onClick={() => setTheme("light")}
                 >
-                  Light
+                  {t("export.light")}
                 </Button>
                 <Button
                   size="sm"
                   variant={theme === "dark" ? "primary" : "secondary"}
                   onClick={() => setTheme("dark")}
                 >
-                  Dark
+                  {t("export.dark")}
                 </Button>
               </div>
             </div>
             <Button onClick={downloadCard}>
-              <ImageIcon className="size-4" /> Download PNG
+              <ImageIcon className="size-4" /> {t("export.downloadPng")}
             </Button>
           </CardBody>
         </Card>

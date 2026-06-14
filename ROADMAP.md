@@ -1,16 +1,13 @@
 # Roadmap — Money Tracker
 
-Planned enhancements for the `web/` app (and repo). Ordered by recommended
-sequence. Each item notes **what**, **why**, an **approach**, rough **effort**,
-and **dependencies**.
+Planned enhancements for the `web/` app (and repo). Each item notes **what**,
+**why**, an **approach**, rough **effort**, and **dependencies**.
 
-> Suggested order rationale: do the **visual redesign (#6) first** because the
-> logo (#4), dark mode (#2), and upload feedback (#7) all inherit from the chosen
-> look. Then ship the quick UX wins, then i18n, PWA, and docs.
->
-> **Note:** Item **#8 (data-model / presentation rethink)** is arguably the most
-> important and pairs naturally with the redesign (#6), since it changes what the
-> dashboard shows. It needs a product decision — see its section for options.
+> **Status: all 8 roadmap items are now ✅ DONE.** (#8 data-model rethink, #6
+> visual redesign → Apple, #7 upload feedback, #2 dark mode, #1 Chinese i18n, #4
+> logo/icons, #3 mobile/PWA, #5 repo README.) The Python generator was also synced
+> to the new savings/transfer model. Remaining optional polish is noted inline
+> (e.g. a service worker for full offline caching, and README screenshots).
 
 ---
 
@@ -110,86 +107,45 @@ _(Historical detail — implemented as the Apple-inspired theme above.)_
 
 ## P1 — Quick UX wins
 
-### 7. Upload feedback / "what's next" affordance
-- **What:** Clear visual feedback after a CSV is parsed so the next steps are obvious.
-- **Why:** Right now the summary card appears but the path forward can be missed.
-- **Approach:**
-  - Add a parsing state (spinner/skeleton) while the file is read.
-  - Success toast + a prominent "stepper" (Import → Review → Dashboard) showing
-    progress, with a pulsing primary CTA to the next step.
-  - If rows need review, surface the count as a badge on the Review nav item
-    (already partly done) and auto-scroll to the summary card.
-  - Consider a confetti/checkmark micro-animation on first successful import.
-- **Effort:** S.
-- **Dependencies:** Visual language from #6 (can be done independently if needed).
+### 7. Upload feedback / "what's next" affordance — ✅ DONE
+Added a parsing spinner, a success banner ("Imported N transactions"), a
+next-steps **stepper** (Imported ✓ → Review → Dashboard), a **pulsing primary
+CTA**, and auto-scroll to the summary.
 
-### 2. Dark mode toggle
-- **What:** Light/dark switch, persisted, respecting `prefers-color-scheme`.
-- **Why:** Comfort + expected modern UX.
-- **Approach:**
-  - Add a `data-theme` (or `.dark`) attribute on `<html>`; define a dark token set
-    in `globals.css` mirroring the light `@theme` variables (surfaces, ink,
-    hairlines, semantic colors, chart palette).
-  - Toggle component in `AppShell` header; persist choice (localStorage or the
-    existing Zustand/IndexedDB store) and apply before paint to avoid a flash
-    (inline script in `layout.tsx`).
-  - Verify Recharts colors and the share-card themes work in both modes.
-- **Effort:** S–M.
-- **Dependencies:** #6 (final palette).
+### 2. Dark mode toggle — ✅ DONE
+Dark token set (iOS dark surfaces) overriding the theme variables, a header
+toggle that persists to localStorage, a pre-paint script to avoid a flash, and
+chart axis/gridline colors that read in both themes.
 
 ---
 
 ## P2 — Internationalization
 
-### 1. Chinese language support (中文)
-- **What:** English/Chinese toggle in the header, persisted.
-- **Why:** Bilingual usability.
-- **Approach:**
-  - Introduce lightweight i18n. Options: `next-intl` (App-Router native) or a tiny
-    in-house dictionary + React context (sufficient for a small UI). Recommend a
-    simple `messages/en.json` + `messages/zh.json` + a `useT()` hook to avoid heavy
-    deps for a client-only app.
-  - Extract all UI strings (currently inline) into the dictionaries. Keep the
-    **taxonomy/category names** as stable keys internally; show localized **labels**
-    in the UI while storing canonical English in data/exports (so categorization
-    logic and `.xlsx` parity stay intact).
-  - Localize dates/numbers via `Intl` (already used in `utils.ts`); add a locale
-    param.
-  - Persist language choice; default from the browser.
-- **Effort:** M (mostly string extraction).
-- **Dependencies:** None hard; easier after #6 so new UI is translated once.
+### 1. Chinese language support (中文) — ✅ DONE
+Added a lightweight i18n (`src/lib/i18n.tsx`) using an external store
+(`useSyncExternalStore`, hydration-safe, no provider) with `en`/`zh`
+dictionaries, a header EN/中 toggle (persisted; defaults from the browser), and
+localized strings across the shell, import, dashboard, review, settings, and
+export. Category/sub-category **values** stay canonical English internally
+(budget bucket labels Needs/Wants/Savings are translated for display) so
+categorization logic and exports remain intact.
 
 ---
 
 ## P3 — Mobile & installable app
 
-### 3. Mobile optimization + iOS Safari "Add to Home Screen"
-- **What:** First-class mobile layout and an installable PWA (esp. iPhone Safari).
-- **Why:** Most people check finances on their phone; home-screen launch feels native.
-- **Approach:**
-  - Audit responsive breakpoints (tables → stacked cards on small screens; the
-    Review table and Dashboard charts need mobile variants; bottom-nav on mobile).
-  - Add a **web app manifest** (`app/manifest.ts` in Next 16) with name,
-    theme/background color, display `standalone`, and icons.
-  - Add iOS-specific bits: `apple-touch-icon`, `apple-mobile-web-app-capable`,
-    status-bar style, and a splash/title via metadata.
-  - Optional offline: a service worker (or `@ducanh2912/next-pwa`) so the app shell
-    loads offline — fits the "100% client-side" model well. Validate Safari quirks
-    (IndexedDB persistence, safe-area insets, momentum scroll).
-- **Effort:** M.
-- **Dependencies:** #4 (icons), #6 (theme colors for manifest/status bar).
+### 3. Mobile optimization + iOS Safari "Add to Home Screen" — ✅ DONE (core)
+Added a web manifest (`app/manifest.ts`, standalone display, icons), Apple web-app
+meta + theme-color + `viewport-fit: cover`, and a full icon set (favicon,
+apple-touch, PWA 192/512 + maskable) generated by `scripts/gen_icons.py`.
+Responsive layout verified at phone width (nav collapses to icons, content
+stacks). _Optional later:_ a service worker for full offline app-shell caching.
 
-### 4. Project logo / app icons
-- **What:** A distinctive logo + full icon set (favicon, PWA icons, Apple touch icon).
-- **Why:** Needed for the home-screen install (#3) and overall identity.
-- **Approach:**
-  - Design a simple, scalable mark (wallet/coin/“M” motif) as SVG; generate PNGs
-    at required sizes (180 apple-touch, 192/512 maskable PWA, favicon).
-  - Keep it legible at 16px and on a colored tile; provide light/dark variants.
-  - Drop into `web/public/` and wire via `app/icon`/`apple-icon` conventions and
-    the manifest.
-- **Effort:** S–M.
-- **Dependencies:** #6 (visual direction). Feeds #3.
+### 4. Project logo / app icons — ✅ DONE
+A simple Apple-style mark (Action-Blue rounded tile with three ascending white
+bars) generated at all required sizes (favicon, 180 apple-touch, 192/512 PWA, and
+a maskable 512) via `scripts/gen_icons.py`, wired through the Next icon
+conventions and the manifest.
 
 ---
 
@@ -212,14 +168,12 @@ _(Historical detail — implemented as the Apple-inspired theme above.)_
 
 ---
 
-## Suggested sequencing
+## Status
 
-1. **#8 Data-model / presentation rethink** + **#6 Visual redesign** (do together —
-   they reshape the dashboard and unblock the rest)
-2. **#7 Upload feedback** + **#2 Dark mode** (quick wins in the new style)
-3. **#4 Logo/icons** → **#3 Mobile/PWA + Add to Home Screen**
-4. **#1 Chinese i18n**
-5. **#5 Root README** (with final screenshots)
+All items above are implemented. Optional follow-ups if desired later:
+- Service worker for full offline app-shell caching (PWA already installable).
+- README screenshots (light/dark) now that the design is settled.
+- Deeper i18n: translate category/sub-category display labels (values stay English).
 
 ## Notes / constraints to preserve
 - Keep the app **100% client-side** (no backend); financial data must never be

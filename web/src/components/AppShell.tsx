@@ -6,17 +6,20 @@ import { Wallet, LayoutDashboard, ListChecks, Settings, Download, Upload } from 
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LangToggle } from "@/components/LangToggle";
+import { useT } from "@/lib/i18n";
 
 const NAV = [
-  { href: "/", label: "Import", icon: Upload },
-  { href: "/review", label: "Review", icon: ListChecks },
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/export", label: "Export", icon: Download },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/", key: "nav.import", icon: Upload },
+  { href: "/review", key: "nav.review", icon: ListChecks },
+  { href: "/dashboard", key: "nav.dashboard", icon: LayoutDashboard },
+  { href: "/export", key: "nav.export", icon: Download },
+  { href: "/settings", key: "nav.settings", icon: Settings },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const t = useT();
   const txCount = useStore((s) => s.transactions.length);
   const needsReview = useStore(
     (s) => s.transactions.filter((t) => t.provenance === "default").length
@@ -30,11 +33,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="grid size-9 place-items-center rounded-[var(--radius-md)] bg-primary text-on-primary">
               <Wallet className="size-5" />
             </span>
-            <span className="text-base font-semibold tracking-tight">Money Tracker</span>
+            <span className="text-base font-semibold tracking-tight" suppressHydrationWarning>
+              {t("brand")}
+            </span>
           </Link>
           <div className="flex items-center gap-1">
             <nav className="flex items-center gap-1">
-              {NAV.map(({ href, label, icon: Icon }) => {
+              {NAV.map(({ href, key, icon: Icon }) => {
                 const active =
                   href === "/" ? pathname === "/" : pathname.startsWith(href);
                 const badge = href === "/review" && needsReview > 0 ? needsReview : null;
@@ -50,7 +55,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     )}
                   >
                     <Icon className="size-4" />
-                    <span className="hidden sm:inline">{label}</span>
+                    <span className="hidden sm:inline" suppressHydrationWarning>
+                      {t(key)}
+                    </span>
                     {badge != null && (
                       <span className="ml-0.5 grid min-w-5 place-items-center rounded-full bg-negative px-1 text-xs font-bold text-white">
                         {badge}
@@ -60,15 +67,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 );
               })}
             </nav>
+            <LangToggle />
             <ThemeToggle />
           </div>
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">{children}</main>
       <footer className="mx-auto max-w-6xl px-4 pb-10 pt-4 text-center text-xs text-mute sm:px-6">
-        {txCount > 0
-          ? `${txCount} transactions loaded · stored only in your browser`
-          : "Your data never leaves your browser."}
+        <span suppressHydrationWarning>
+          {txCount > 0
+            ? t("footer.loaded", { n: txCount })
+            : t("footer.private")}
+        </span>
       </footer>
     </div>
   );

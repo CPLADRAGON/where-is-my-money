@@ -10,6 +10,7 @@ import { CategoryPicker } from "@/components/CategoryPicker";
 import { useStore } from "@/lib/store";
 import { BUDGET_BUCKETS, type Pillar } from "@/lib/taxonomy";
 import { formatMonthLabel, formatPct } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 export default function Page() {
   return (
@@ -22,6 +23,7 @@ export default function Page() {
 }
 
 function SettingsView() {
+  const t = useT();
   const learned = useStore((s) => s.learned);
   const setLearnedViaForget = useStore((s) => s.forgetMerchant);
   const presets = useStore((s) => s.presets);
@@ -38,19 +40,17 @@ function SettingsView() {
 
   return (
     <div className="grid gap-5">
-      <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">{t("settings.title")}</h1>
 
       {/* Targets */}
       <Card>
         <CardBody>
-          <CardTitle>Budget targets</CardTitle>
-          <p className="mt-1 text-sm text-body">
-            Baseline is 50% Needs / 30% Wants / 20% Savings.
-          </p>
+          <CardTitle>{t("settings.targets")}</CardTitle>
+          <p className="mt-1 text-sm text-body">{t("settings.targetsNote")}</p>
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
             {BUDGET_BUCKETS.map((b) => (
               <div key={b} className="grid gap-1">
-                <label className="text-sm font-medium">{b}</label>
+                <label className="text-sm font-medium">{t(`bucket.${b}`)}</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
@@ -73,12 +73,10 @@ function SettingsView() {
       {/* Income */}
       <Card>
         <CardBody>
-          <CardTitle>Monthly income</CardTitle>
-          <p className="mt-1 text-sm text-body">
-            Auto-detected from salary deposits. Override any month here.
-          </p>
+          <CardTitle>{t("settings.income")}</CardTitle>
+          <p className="mt-1 text-sm text-body">{t("settings.incomeNote")}</p>
           {months.length === 0 ? (
-            <p className="mt-3 text-sm text-mute">No data imported yet.</p>
+            <p className="mt-3 text-sm text-mute">{t("settings.noData")}</p>
           ) : (
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               {months.map((m) => (
@@ -103,14 +101,10 @@ function SettingsView() {
       {/* Learned merchants */}
       <Card>
         <CardBody>
-          <CardTitle>Remembered merchants ({learnedEntries.length})</CardTitle>
-          <p className="mt-1 text-sm text-body">
-            These payees auto-categorize on every import. Edit or remove them.
-          </p>
+          <CardTitle>{t("settings.remembered", { n: learnedEntries.length })}</CardTitle>
+          <p className="mt-1 text-sm text-body">{t("settings.rememberedNote")}</p>
           {learnedEntries.length === 0 ? (
-            <p className="mt-3 text-sm text-mute">
-              None yet — tag a transaction with “Remember merchant” on to add one.
-            </p>
+            <p className="mt-3 text-sm text-mute">{t("settings.noMerchants")}</p>
           ) : (
             <div className="mt-3 grid gap-2">
               {learnedEntries.map(([key, cat]) => (
@@ -139,11 +133,9 @@ function SettingsView() {
       {/* Saved presets */}
       <Card>
         <CardBody>
-          <CardTitle>Saved bank presets ({presets.length})</CardTitle>
+          <CardTitle>{t("settings.presets", { n: presets.length })}</CardTitle>
           {presets.length === 0 ? (
-            <p className="mt-3 text-sm text-mute">
-              No custom column mappings saved yet.
-            </p>
+            <p className="mt-3 text-sm text-mute">{t("settings.noPresets")}</p>
           ) : (
             <div className="mt-3 grid gap-2">
               {presets.map((p) => (
@@ -171,7 +163,7 @@ function SettingsView() {
         <CardBody className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-sm text-negative-deep">
             <AlertTriangle className="size-4" />
-            Clear all imported data, overrides, learned rules and presets.
+            {t("settings.dangerNote")}
           </div>
           <ClearButton onClear={clearAll} />
         </CardBody>
@@ -211,26 +203,27 @@ function MerchantCategory({
 }
 
 function ClearButton({ onClear }: { onClear: () => void }) {
+  const t = useT();
   const [confirm, setConfirm] = useState(false);
   if (!confirm) {
     return (
       <Button variant="tertiary" onClick={() => setConfirm(true)}>
-        Clear all data
+        {t("settings.clearAll")}
       </Button>
     );
   }
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm font-medium">Are you sure?</span>
+      <span className="text-sm font-medium">{t("settings.confirm")}</span>
       <Button
         size="sm"
         onClick={onClear}
         className="bg-negative text-white hover:bg-negative-deep"
       >
-        Yes, delete
+        {t("settings.yesDelete")}
       </Button>
       <Button size="sm" variant="ghost" onClick={() => setConfirm(false)}>
-        Cancel
+        {t("settings.cancel")}
       </Button>
     </div>
   );
