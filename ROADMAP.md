@@ -177,6 +177,12 @@ All items above are implemented. Post-roadmap features:
 - Recurring & subscriptions detector: `/recurring` page + Dashboard card
   (spec: `docs/superpowers/specs/2026-06-15-recurring-detector-design.md`,
   plan: `docs/superpowers/plans/2026-06-15-recurring-detector.md`).
+- Spending Insights: Dashboard "What changed" card comparing the two latest
+  months — total-spend delta, top category movers (↑/↓, colored by pillar,
+  drill into `/transactions`), and the biggest category this month
+  (`web/src/lib/insights.ts`, `web/src/components/InsightsCard.tsx`).
+- Chart palette refresh: vibrant, cohesive pillar colors; sub-category bars
+  colored by pillar; dark-mode-safe trend lines.
 
 Optional follow-ups if desired later:
 - Service worker for full offline app-shell caching (PWA already installable).

@@ -18,7 +18,10 @@ Key files:
   lives on `/transactions` (filterable; URL-encoded filters via `lib/filters.ts`); `/review`
   redirects there with the "Needs review" preset, and the Dashboard charts/rows deep-link into it.
   `/recurring` detects subscriptions/bills + frequent merchants from `lib/recurring.ts` (group by
-  merchant, ≥3 months); items deep-link to `/transactions?q=<merchant>`.
+  merchant, ≥3 months); items deep-link to `/transactions?q=<merchant>`. The Dashboard also shows a
+  **Spending Insights** "What changed" card (`lib/insights.ts` + `components/InsightsCard.tsx`)
+  comparing the two latest months (spend delta, top movers colored by pillar, biggest category);
+  movers deep-link to `/transactions?month=<m>&sub=<sub>`.
 - **Both implementations now share the same model** (kept in sync): spending is **Fixed Needs /
   Variable Wants** only; **savings is an outcome** (Income − Spending); **transfers**
   (savings/investment + person-to-person) are auto-detected and **excluded from spending**; and

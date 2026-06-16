@@ -48,6 +48,9 @@ npx tsx scripts/smoke-parse.ts   # parser parity test vs the sample OCBC CSV
   frequent merchants, with average amount, cadence, and next-expected date. A
   Dashboard card summarizes your monthly commitment; each item drills into its
   transactions.
+- **Spending Insights** — a Dashboard **"What changed"** card comparing the two
+  latest months: total-spend delta, the biggest category movers (↑/↓, colored by
+  pillar, click to drill into those transactions), and your top category this month.
 - **Settings** — edit budget targets, monthly income, remembered merchants and
   saved bank presets; one-click clear-all (privacy reset).
 - **Export** — optional CSV and `.xlsx` (mirrors the original workbook), plus a
