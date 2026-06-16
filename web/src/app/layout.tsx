@@ -1,17 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Hanken_Grotesk, Instrument_Serif } from "next/font/google";
+import { Plus_Jakarta_Sans, Sora } from "next/font/google";
 import "./globals.css";
 
-const sans = Hanken_Grotesk({
-  variable: "--font-hanken",
+const sans = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
   display: "swap",
 });
 
-const display = Instrument_Serif({
-  variable: "--font-instrument",
-  weight: "400",
-  style: ["normal", "italic"],
+const display = Sora({
+  variable: "--font-sora",
+  weight: ["600", "700"],
   subsets: ["latin"],
   display: "swap",
 });
