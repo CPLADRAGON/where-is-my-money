@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Wallet, LayoutDashboard, ListChecks, Settings, Download, Upload } from "lucide-react";
+import { Wallet, LayoutDashboard, ListChecks, Settings, Download, Upload, Repeat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -13,6 +13,7 @@ const NAV = [
   { href: "/", key: "nav.import", icon: Upload },
   { href: "/transactions", key: "nav.transactions", icon: ListChecks },
   { href: "/dashboard", key: "nav.dashboard", icon: LayoutDashboard },
+  { href: "/recurring", key: "nav.recurring", icon: Repeat },
   { href: "/export", key: "nav.export", icon: Download },
   { href: "/settings", key: "nav.settings", icon: Settings },
 ];

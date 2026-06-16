@@ -16,6 +16,7 @@ import {
   SubBars,
   TrendLine,
 } from "@/components/DashboardCharts";
+import { RecurringSummaryCard } from "@/components/RecurringSummaryCard";
 import { useStore } from "@/lib/store";
 import { SPENDING_PILLARS } from "@/lib/taxonomy";
 import {
@@ -151,6 +152,8 @@ function DashboardView() {
           </CardBody>
         </Card>
       </div>
+
+      <RecurringSummaryCard />
 
       {/* Where your income went (flow) */}
       <Card>
