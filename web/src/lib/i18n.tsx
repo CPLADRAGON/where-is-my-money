@@ -198,6 +198,21 @@ const EN = {
   "sort.amount_desc": "Largest first",
   "sort.amount_asc": "Smallest first",
   "dash.tapHint": "Tap a slice, bar, or row to view its transactions",
+  "nav.recurring": "Recurring",
+  "recurring.title": "Recurring",
+  "recurring.monthlyCommitment": "~{amount} / month",
+  "recurring.subsCount": "{n} subscriptions",
+  "recurring.sectionSubs": "Subscriptions & bills",
+  "recurring.sectionFrequent": "Frequent merchants",
+  "recurring.cadence.Monthly": "Monthly",
+  "recurring.cadence.Fortnightly": "Fortnightly",
+  "recurring.cadence.Weekly": "Weekly",
+  "recurring.cadence.Irregular": "Irregular",
+  "recurring.nextExpected": "Next ~ {date}",
+  "recurring.chargesOverMonths": "{count} charges · {months} months",
+  "recurring.total": "Total {amount}",
+  "recurring.empty": "Import at least 3 months of statements to see recurring charges.",
+  "dash.recurringCard": "Recurring",
 };
 
 const ZH: Record<keyof typeof EN, string> = {
@@ -342,6 +357,21 @@ const ZH: Record<keyof typeof EN, string> = {
   "sort.amount_desc": "金额从高到低",
   "sort.amount_asc": "金额从低到高",
   "dash.tapHint": "点击扇区、柱条或行即可查看对应交易",
+  "nav.recurring": "定期",
+  "recurring.title": "定期支出",
+  "recurring.monthlyCommitment": "约 {amount} / 月",
+  "recurring.subsCount": "{n} 项订阅",
+  "recurring.sectionSubs": "订阅与账单",
+  "recurring.sectionFrequent": "常用商家",
+  "recurring.cadence.Monthly": "每月",
+  "recurring.cadence.Fortnightly": "每两周",
+  "recurring.cadence.Weekly": "每周",
+  "recurring.cadence.Irregular": "不定期",
+  "recurring.nextExpected": "下次约 {date}",
+  "recurring.chargesOverMonths": "{count} 笔 · {months} 个月",
+  "recurring.total": "合计 {amount}",
+  "recurring.empty": "导入至少 3 个月的对账单即可查看定期支出。",
+  "dash.recurringCard": "定期",
 };
 
 const DICT: Record<Lang, Record<string, string>> = { en: EN, zh: ZH };
