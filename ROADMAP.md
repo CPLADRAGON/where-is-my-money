@@ -185,6 +185,11 @@ All items above are implemented. Post-roadmap features:
   colored by pillar; dark-mode-safe trend lines.
 - README screenshots: light + dark dashboard images at
   `web/docs/images/dashboard-{light,dark}.png`, embedded in `web/README.md`.
+- Per-category budgets: optional monthly cap per sub-category (Settings, persisted)
+  + Dashboard "Budget watch" card with progress bars, over-budget alerts, and
+  drill-in (`web/src/lib/budgets.ts`, `web/src/components/BudgetWatchCard.tsx`).
+- Mobile nav fix: the top nav overflowed narrow phone viewports; navigation now
+  uses a fixed bottom tab bar on mobile (`sm:hidden`), top nav is desktop-only.
 
 Optional follow-ups if desired later:
 - Service worker for full offline app-shell caching (PWA already installable).

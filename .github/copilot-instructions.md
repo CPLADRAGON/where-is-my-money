@@ -21,7 +21,11 @@ Key files:
   merchant, ≥3 months); items deep-link to `/transactions?q=<merchant>`. The Dashboard also shows a
   **Spending Insights** "What changed" card (`lib/insights.ts` + `components/InsightsCard.tsx`)
   comparing the two latest months (spend delta, top movers colored by pillar, biggest category);
-  movers deep-link to `/transactions?month=<m>&sub=<sub>`.
+  movers deep-link to `/transactions?month=<m>&sub=<sub>`. Optional **per-category monthly budgets**
+  (set in Settings, stored as `budgets: Record<sub, cap>`) drive a Dashboard **"Budget watch"** card
+  (`lib/budgets.ts` + `components/BudgetWatchCard.tsx`): spend-vs-cap progress bars normalized per
+  month over the selected range, with over-budget alerts. Navigation uses the top header on desktop
+  and a **fixed bottom tab bar on mobile** (`AppShell.tsx`; top nav is `hidden sm:flex`).
 - **Both implementations now share the same model** (kept in sync): spending is **Fixed Needs /
   Variable Wants** only; **savings is an outcome** (Income − Spending); **transfers**
   (savings/investment + person-to-person) are auto-detected and **excluded from spending**; and

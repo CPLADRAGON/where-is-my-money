@@ -61,13 +61,17 @@ npx tsx scripts/smoke-parse.ts   # parser parity test vs the sample OCBC CSV
 - **Spending Insights** — a Dashboard **"What changed"** card comparing the two
   latest months: total-spend delta, the biggest category movers (↑/↓, colored by
   pillar, click to drill into those transactions), and your top category this month.
-- **Settings** — edit budget targets, monthly income, remembered merchants and
-  saved bank presets; one-click clear-all (privacy reset).
+- **Category budgets** — set an optional **monthly cap per sub-category** in
+  Settings; a Dashboard **"Budget watch"** card shows spend-vs-cap progress bars
+  (normalized per month over the selected range), flags over-budget categories, and
+  drills into their transactions.
+- **Settings** — edit budget targets, **per-category budgets**, monthly income,
+  remembered merchants and saved bank presets; one-click clear-all (privacy reset).
 - **Export** — optional CSV and `.xlsx` (mirrors the original workbook), plus a
   **share-card builder** (selectable range + metrics + theme -> PNG).
 - **Polish** — Apple-inspired theme, **dark mode** toggle, **English / 中文**
-  language toggle, responsive layout, and an installable **PWA** (iOS "Add to
-  Home Screen" with app icons).
+  language toggle, responsive layout with a **mobile bottom tab bar**, and an
+  installable **PWA** (iOS "Add to Home Screen" with app icons).
 
 ## Architecture
 
