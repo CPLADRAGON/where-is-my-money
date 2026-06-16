@@ -213,6 +213,15 @@ const EN = {
   "recurring.total": "Total {amount}",
   "recurring.empty": "Import at least 3 months of statements to see recurring charges.",
   "dash.recurringCard": "Recurring",
+  "insights.title": "What changed",
+  "insights.subtitle": "{cur} vs {prev}",
+  "insights.spentMore": "You spent {amount} more than {prev}",
+  "insights.spentLess": "You spent {amount} less than {prev}",
+  "insights.spentSame": "Spending held steady vs {prev}",
+  "insights.movers": "Biggest changes",
+  "insights.biggest": "Top category this month: {sub} ({amount})",
+  "insights.newSpend": "new",
+  "insights.stopped": "stopped",
 };
 
 const ZH: Record<keyof typeof EN, string> = {
@@ -372,6 +381,15 @@ const ZH: Record<keyof typeof EN, string> = {
   "recurring.total": "合计 {amount}",
   "recurring.empty": "导入至少 3 个月的对账单即可查看定期支出。",
   "dash.recurringCard": "定期",
+  "insights.title": "变化概览",
+  "insights.subtitle": "{cur} 对比 {prev}",
+  "insights.spentMore": "比 {prev} 多花了 {amount}",
+  "insights.spentLess": "比 {prev} 少花了 {amount}",
+  "insights.spentSame": "与 {prev} 持平",
+  "insights.movers": "变化最大的类别",
+  "insights.biggest": "本月最大类别：{sub}（{amount}）",
+  "insights.newSpend": "新增",
+  "insights.stopped": "停止",
 };
 
 const DICT: Record<Lang, Record<string, string>> = { en: EN, zh: ZH };

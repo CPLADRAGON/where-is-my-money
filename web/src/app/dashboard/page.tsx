@@ -17,6 +17,7 @@ import {
   TrendLine,
 } from "@/components/DashboardCharts";
 import { RecurringSummaryCard } from "@/components/RecurringSummaryCard";
+import { InsightsCard } from "@/components/InsightsCard";
 import { useStore } from "@/lib/store";
 import { SPENDING_PILLARS } from "@/lib/taxonomy";
 import {
@@ -154,6 +155,9 @@ function DashboardView() {
       </div>
 
       <RecurringSummaryCard />
+
+      <InsightsCard />
+
 
       {/* Where your income went (flow) */}
       <Card>
