@@ -85,18 +85,20 @@ export const SAVINGS_DEFAULT: { pillar: Pillar; sub: string } = {
   sub: "Savings / Investment",
 };
 
-/** Colors for budget buckets + the transfer pillar (iOS system palette). */
+/** Colors for budget buckets + the transfer pillar.
+ *  Vibrant, accessible hues chosen to read on both light (#fff) and dark
+ *  (#1c1c1e) card surfaces. */
 export const BUCKET_COLORS: Record<BudgetBucket, string> = {
-  Needs: "#0066cc",
-  Wants: "#ff9500",
-  Savings: "#34c759",
+  Needs: "#3b82f6", // blue
+  Wants: "#f59e0b", // amber
+  Savings: "#10b981", // emerald
 };
-export const TRANSFER_COLOR = "#8e8e93";
+export const TRANSFER_COLOR = "#94a3b8"; // slate
 
 /** Colors per spending pillar (for pie/sub-category charts). */
 export const PILLAR_COLORS: Record<Pillar, string> = {
-  "Fixed Needs": "#0066cc",
-  "Variable Wants": "#ff9500",
+  "Fixed Needs": "#3b82f6",
+  "Variable Wants": "#f59e0b",
   Transfer: TRANSFER_COLOR,
 };
 

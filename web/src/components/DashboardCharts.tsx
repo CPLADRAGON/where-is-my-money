@@ -25,10 +25,11 @@ import {
 import { formatSGD, formatPct, formatMonthLabel } from "@/lib/utils";
 import type { SubRow, MonthlyPoint, BudgetRow } from "@/lib/selectors";
 
-const SUB_COLOR = "#0066cc";
-const INCOME_COLOR = "#1d1d1f";
-const SPENT_COLOR = "#ff3b30";
-const SAVED_COLOR = "#34c759";
+const SUB_COLOR = "#3b82f6";
+const INCOME_COLOR = "#6366f1"; // indigo — visible on both light and dark
+const SPENT_COLOR = "#f43f5e"; // rose
+const SAVED_COLOR = "#10b981"; // emerald
+const TARGET_COLOR = "#cbd5e1"; // slate-300, neutral reference bar
 
 const num = (v: unknown): number => {
   const n = Number(v);
@@ -100,7 +101,7 @@ export function BudgetBars({ data }: { data: BudgetRow[] }) {
           ))}
           <LabelList dataKey="actual" position="top" formatter={pct0} style={{ fontSize: 11 }} />
         </Bar>
-        <Bar dataKey="target" name="Target %" fill="#d2d2d7" radius={[6, 6, 0, 0]} />
+        <Bar dataKey="target" name="Target %" fill={TARGET_COLOR} radius={[6, 6, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -176,6 +177,9 @@ export function SubBars({
           onClick={(d: { payload?: SubRow }) => d.payload && onBarClick?.(d.payload.sub)}
           cursor={onBarClick ? "pointer" : undefined}
         >
+          {data.map((r) => (
+            <Cell key={r.sub} fill={PILLAR_COLORS[r.pillar]} />
+          ))}
           <LabelList dataKey="amount" position="right" formatter={moneyShort} style={{ fontSize: 11 }} />
         </Bar>
       </BarChart>
