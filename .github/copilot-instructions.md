@@ -14,8 +14,8 @@ Key files:
 - `build_tracker.py` — the **generator**. Reads the OCBC CSV, auto-categorizes spend rows via
   merchant-text rules, and writes `MonthlyExpenseTracker.xlsx` (Dashboard / Transactions / Setup).
 - `web/` — the **web app**. Next.js 16 + TypeScript + Tailwind v4, fully client-side (data never
-  leaves the browser), deployable to Vercel. **"Editorial Luxe"** visual theme (Instrument Serif
-  display + Hanken Grotesk body, warm-paper light / near-black dark, lavender-indigo accent; tokens
+  leaves the browser), deployable to Vercel. **"Editorial Luxe"** visual theme (Sora display +
+  Plus Jakarta Sans body, warm-paper light / near-black dark, lavender-indigo accent; tokens
   live in `web/src/app/globals.css`). Transaction browsing
   lives on `/transactions` (filterable; URL-encoded filters via `lib/filters.ts`); `/review`
   redirects there with the "Needs review" preset, and the Dashboard charts/rows deep-link into it.

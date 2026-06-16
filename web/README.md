@@ -24,9 +24,9 @@ _Dashboard rendered from the built-in demo data (no real bank data)._
 - **PapaParse** (CSV), **Recharts** (charts), **SheetJS** (xlsx export),
   **html-to-image** (share cards)
 - **Zustand** + **IndexedDB** (`idb-keyval`) for private, persistent local storage
-- **"Editorial Luxe"** visual theme — Instrument Serif display + Hanken Grotesk
-  body, warm-paper light mode, near-black premium dark mode, a lavender-indigo
-  accent, and an atmospheric accent-glow + grain page wash (light/dark)
+- **"Editorial Luxe"** visual theme — Sora display + Plus Jakarta Sans body,
+  warm-paper light mode, near-black premium dark mode, a lavender-indigo accent,
+  and an atmospheric accent-glow + grain page wash (light/dark)
 
 ## Develop
 
@@ -71,8 +71,8 @@ npx tsx scripts/smoke-parse.ts   # parser parity test vs the sample OCBC CSV
   remembered merchants and saved bank presets; one-click clear-all (privacy reset).
 - **Export** — optional CSV and `.xlsx` (mirrors the original workbook), plus a
   **share-card builder** (selectable range + metrics + theme -> PNG).
-- **Polish** — "Editorial Luxe" theme (serif display + grotesk body, warm-paper
-  light / near-black dark), **dark mode** toggle, **English / 中文**
+- **Polish** — "Editorial Luxe" theme (Sora display + Plus Jakarta Sans body,
+  warm-paper light / near-black dark), **dark mode** toggle, **English / 中文**
   language toggle, responsive layout with a **mobile bottom tab bar**, and an
   installable **PWA** (iOS "Add to Home Screen" with app icons).
 
