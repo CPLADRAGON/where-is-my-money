@@ -174,6 +174,9 @@ All items above are implemented. Post-roadmap features:
 - Category drill-down: unified filterable `/transactions` page with clickable
   Dashboard entry points (spec: `docs/superpowers/specs/2026-06-14-transactions-drilldown-design.md`,
   plan: `docs/superpowers/plans/2026-06-14-transactions-drilldown.md`).
+- Recurring & subscriptions detector: `/recurring` page + Dashboard card
+  (spec: `docs/superpowers/specs/2026-06-15-recurring-detector-design.md`,
+  plan: `docs/superpowers/plans/2026-06-15-recurring-detector.md`).
 
 Optional follow-ups if desired later:
 - Service worker for full offline app-shell caching (PWA already installable).

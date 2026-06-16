@@ -44,6 +44,10 @@ npx tsx scripts/smoke-parse.ts   # parser parity test vs the sample OCBC CSV
   Savings is treated as an **outcome** (Income − Spending), not a spend category;
   **transfers** (savings/investment moves + P2P) are auto-detected and **excluded
   from spending**.
+- **Recurring** — auto-detected subscriptions & bills (stable, ~monthly) and
+  frequent merchants, with average amount, cadence, and next-expected date. A
+  Dashboard card summarizes your monthly commitment; each item drills into its
+  transactions.
 - **Settings** — edit budget targets, monthly income, remembered merchants and
   saved bank presets; one-click clear-all (privacy reset).
 - **Export** — optional CSV and `.xlsx` (mirrors the original workbook), plus a
