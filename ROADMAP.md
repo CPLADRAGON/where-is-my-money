@@ -190,6 +190,12 @@ All items above are implemented. Post-roadmap features:
   drill-in (`web/src/lib/budgets.ts`, `web/src/components/BudgetWatchCard.tsx`).
 - Mobile nav fix: the top nav overflowed narrow phone viewports; navigation now
   uses a fixed bottom tab bar on mobile (`sm:hidden`), top nav is desktop-only.
+- "Editorial Luxe" visual overhaul: a high-end theme reinterpreting the Linear
+  design system (VoltAgent/awesome-design-md) — Instrument Serif display for money
+  figures + titles, Hanken Grotesk body, warm-paper light / near-black dark modes,
+  a lavender-indigo accent, atmospheric accent-glow + grain page wash, editorial
+  eyebrow labels, refined shadows, and a staggered section reveal. Tokens centralized
+  in `web/src/app/globals.css`; chart palette retuned (indigo/gold/emerald).
 
 Optional follow-ups if desired later:
 - Service worker for full offline app-shell caching (PWA already installable).
