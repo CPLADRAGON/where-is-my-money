@@ -183,10 +183,11 @@ All items above are implemented. Post-roadmap features:
   (`web/src/lib/insights.ts`, `web/src/components/InsightsCard.tsx`).
 - Chart palette refresh: vibrant, cohesive pillar colors; sub-category bars
   colored by pillar; dark-mode-safe trend lines.
+- README screenshots: light + dark dashboard images at
+  `web/docs/images/dashboard-{light,dark}.png`, embedded in `web/README.md`.
 
 Optional follow-ups if desired later:
 - Service worker for full offline app-shell caching (PWA already installable).
-- README screenshots (light/dark) now that the design is settled.
 - Deeper i18n: translate category/sub-category display labels (values stay English).
 
 ## Notes / constraints to preserve

@@ -1,12 +1,22 @@
 # Money Tracker — Web App
 
 A fully client-side personal expense tracker. Import a bank CSV, categorize
-spending into a 3-bucket system (Fixed Needs / Variable Wants / Future Savings),
-and explore a clean dashboard. **Your data never leaves your browser** — parsing,
-storage, and charts all run locally; nothing is uploaded.
+spending into **Fixed Needs / Variable Wants** (savings is an outcome — Income −
+Spending — not a spend bucket), and explore a clean dashboard. **Your data never
+leaves your browser** — parsing, storage, and charts all run locally; nothing is
+uploaded.
 
 This is the interactive successor to the Python `build_tracker.py` + Excel
 workflow in the repository root.
+
+## Screenshots
+
+| Light | Dark |
+| --- | --- |
+| ![Dashboard, light theme](docs/images/dashboard-light.png) | ![Dashboard, dark theme](docs/images/dashboard-dark.png) |
+
+_Dashboard rendered from the built-in demo data (no real bank data)._
+
 
 ## Stack
 
@@ -14,7 +24,7 @@ workflow in the repository root.
 - **PapaParse** (CSV), **Recharts** (charts), **SheetJS** (xlsx export),
   **html-to-image** (share cards)
 - **Zustand** + **IndexedDB** (`idb-keyval`) for private, persistent local storage
-- **Wise-inspired** visual theme (lime-green accent, rounded white cards)
+- **Apple-inspired** visual theme (clean typography, rounded cards, light/dark)
 
 ## Develop
 
