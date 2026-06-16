@@ -18,6 +18,7 @@ import {
 } from "@/components/DashboardCharts";
 import { RecurringSummaryCard } from "@/components/RecurringSummaryCard";
 import { InsightsCard } from "@/components/InsightsCard";
+import { BudgetWatchCard } from "@/components/BudgetWatchCard";
 import { useStore } from "@/lib/store";
 import { SPENDING_PILLARS } from "@/lib/taxonomy";
 import {
@@ -244,6 +245,8 @@ function DashboardView() {
           )}
         </CardBody>
       </Card>
+
+      <BudgetWatchCard tx={filtered} onRowClick={(s) => drill({ sub: s })} />
 
       {/* Charts */}
       <div className="grid gap-4 lg:grid-cols-2">

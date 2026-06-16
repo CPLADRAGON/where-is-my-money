@@ -8,7 +8,7 @@ import { Card, CardBody, CardTitle } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { CategoryPicker } from "@/components/CategoryPicker";
 import { useStore } from "@/lib/store";
-import { BUDGET_BUCKETS, type Pillar } from "@/lib/taxonomy";
+import { BUDGET_BUCKETS, SPENDING_PILLARS, CATEGORIES, type Pillar } from "@/lib/taxonomy";
 import { formatMonthLabel, formatPct } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
 
@@ -34,6 +34,8 @@ function SettingsView() {
   const setIncome = useStore((s) => s.setIncome);
   const targets = useStore((s) => s.targets);
   const setTarget = useStore((s) => s.setTarget);
+  const budgets = useStore((s) => s.budgets);
+  const setBudget = useStore((s) => s.setBudget);
   const clearAll = useStore((s) => s.clearAll);
 
   const learnedEntries = Object.entries(learned);
@@ -64,6 +66,42 @@ function SettingsView() {
                   />
                   <span className="text-sm text-mute">% ({formatPct(targets[b], 0)})</span>
                 </div>
+              </div>
+            ))}
+          </div>
+        </CardBody>
+      </Card>
+
+      {/* Per-category budgets */}
+      <Card>
+        <CardBody>
+          <CardTitle>{t("settings.budgets")}</CardTitle>
+          <p className="mt-1 text-sm text-body">{t("settings.budgetsNote")}</p>
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+            {SPENDING_PILLARS.map((pillar) => (
+              <div key={pillar} className="grid gap-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-mute">
+                  {t(`pillar.${pillar}`)}
+                </p>
+                {CATEGORIES[pillar].map((sub) => (
+                  <div
+                    key={sub}
+                    className="flex items-center justify-between gap-3 rounded-[var(--radius-md)] bg-canvas-soft px-3 py-2"
+                  >
+                    <span className="text-sm font-medium">{sub}</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm text-mute">S$</span>
+                      <input
+                        type="number"
+                        min={0}
+                        value={budgets[sub] ?? ""}
+                        placeholder="0"
+                        onChange={(e) => setBudget(sub, Number(e.target.value))}
+                        className="h-9 w-24 rounded-[var(--radius-sm)] border border-hairline bg-canvas px-2 text-sm tabular text-right"
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
             ))}
           </div>

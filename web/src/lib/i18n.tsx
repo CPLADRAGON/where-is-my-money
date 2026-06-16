@@ -222,6 +222,16 @@ const EN = {
   "insights.biggest": "Top category this month: {sub} ({amount})",
   "insights.newSpend": "new",
   "insights.stopped": "stopped",
+  "settings.budgets": "Category budgets",
+  "settings.budgetsNote": "Optional monthly spending cap per category. Set to 0 for no limit.",
+  "pillar.Fixed Needs": "Fixed Needs",
+  "pillar.Variable Wants": "Variable Wants",
+  "budgets.title": "Budget watch",
+  "budgets.spentOfCap": "{spent} / {cap} per month",
+  "budgets.over": "Over by {amount}",
+  "budgets.left": "{amount} left",
+  "budgets.overCount": "{n} over budget",
+  "budgets.empty": "No budgets set yet — add caps in Settings.",
 };
 
 const ZH: Record<keyof typeof EN, string> = {
@@ -390,6 +400,16 @@ const ZH: Record<keyof typeof EN, string> = {
   "insights.biggest": "本月最大类别：{sub}（{amount}）",
   "insights.newSpend": "新增",
   "insights.stopped": "停止",
+  "settings.budgets": "类别预算",
+  "settings.budgetsNote": "可为每个类别设置每月支出上限。设为 0 表示不限制。",
+  "pillar.Fixed Needs": "固定必要",
+  "pillar.Variable Wants": "弹性想要",
+  "budgets.title": "预算监控",
+  "budgets.spentOfCap": "每月 {spent} / {cap}",
+  "budgets.over": "超出 {amount}",
+  "budgets.left": "剩余 {amount}",
+  "budgets.overCount": "{n} 项超支",
+  "budgets.empty": "尚未设置预算 — 可在设置中添加上限。",
 };
 
 const DICT: Record<Lang, Record<string, string>> = { en: EN, zh: ZH };

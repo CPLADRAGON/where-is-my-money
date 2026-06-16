@@ -33,6 +33,8 @@ interface AppState {
   presets: SavedPreset[];
   /** Budget targets per bucket (share of income). */
   targets: Record<BudgetBucket, number>;
+  /** Optional monthly spending cap per sub-category (SGD). 0/absent = no cap. */
+  budgets: Record<string, number>;
 
   /** Hydration flag so the UI can wait for IndexedDB. */
   _hydrated: boolean;
@@ -54,6 +56,7 @@ interface AppState {
   forgetMerchant: (merchantKey: string) => void;
   removeOverride: (fingerprint: string) => void;
   setTarget: (bucket: BudgetBucket, value: number) => void;
+  setBudget: (sub: string, amount: number) => void;
   addPreset: (preset: SavedPreset) => void;
   removePreset: (name: string) => void;
   clearAll: () => void;
@@ -95,6 +98,7 @@ export const useStore = create<AppState>()(
       learned: {},
       presets: [],
       targets: { ...TARGETS },
+      budgets: {},
       _hydrated: false,
 
       importData: (result) =>
@@ -176,6 +180,14 @@ export const useStore = create<AppState>()(
 
       setTarget: (bucket, value) =>
         set((s) => ({ targets: { ...s.targets, [bucket]: value } })),
+
+      setBudget: (sub, amount) =>
+        set((s) => {
+          const budgets = { ...s.budgets };
+          if (amount > 0) budgets[sub] = amount;
+          else delete budgets[sub];
+          return { budgets };
+        }),
 
       addPreset: (preset) =>
         set((s) => ({
