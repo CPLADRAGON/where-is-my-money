@@ -46,7 +46,7 @@ function RecurringView() {
   return (
     <div className="grid gap-5">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("recurring.title")}</h1>
+        <h1 className="font-display text-[2rem] leading-[1.15] tracking-tight">{t("recurring.title")}</h1>
         <p className="mt-1 text-sm text-body">
           {t("recurring.monthlyCommitment", { amount: formatSGD(monthly) })} ·{" "}
           {t("recurring.subsCount", { n: groups.subscriptions.length })}

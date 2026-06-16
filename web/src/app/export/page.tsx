@@ -105,7 +105,7 @@ function ExportView() {
 
   return (
     <div className="grid gap-5">
-      <h1 className="text-2xl font-semibold tracking-tight">{t("export.title")}</h1>
+      <h1 className="font-display text-[2rem] leading-[1.15] tracking-tight">{t("export.title")}</h1>
 
       {/* File exports */}
       <Card>
@@ -236,11 +236,11 @@ const ShareCard = React.forwardRef<
         color: fg,
         padding: 32,
         borderRadius: 24,
-        fontFamily: "var(--font-inter), system-ui, sans-serif",
+        fontFamily: "var(--font-hanken), system-ui, sans-serif",
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: 14, fontWeight: 700, opacity: 0.8 }}>
+        <span style={{ fontSize: 20, fontWeight: 400, opacity: 0.9, fontFamily: "var(--font-instrument), Georgia, serif" }}>
           Money Tracker
         </span>
         <span style={{ fontSize: 14, fontWeight: 700, color: sub }}>{rangeLabel}</span>

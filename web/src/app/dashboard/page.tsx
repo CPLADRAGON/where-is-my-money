@@ -102,9 +102,9 @@ function DashboardView() {
   const pieData = SPENDING_PILLARS.map((p) => ({ pillar: p, amount: byPillar[p] }));
 
   return (
-    <div className="grid gap-5">
+    <div className="stagger grid gap-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-2xl font-semibold tracking-tight">{t("dashboard.title")}</h1>
+        <h1 className="font-display text-[2rem] leading-[1.15] tracking-tight">{t("dashboard.title")}</h1>
         <div className="flex flex-wrap items-center gap-2">
           <Select value={rangeMode} onChange={(e) => setRangeMode(e.target.value)}>
             <option value="all">{t("range.all")}</option>
@@ -145,7 +145,7 @@ function DashboardView() {
           <CardBody>
             <CardTitle>{t("card.savingsRate")}</CardTitle>
             <p
-              className="tabular mt-2 text-3xl font-semibold"
+              className="tabular font-display mt-2 text-4xl"
               style={{ color: savingsRate >= 0.2 ? "var(--color-positive)" : "var(--color-warning-deep)" }}
             >
               {income > 0 ? formatPct(savingsRate, 0) : "—"}
@@ -300,7 +300,7 @@ function SummaryCard({
     <Card>
       <CardBody>
         <CardTitle>{label}</CardTitle>
-        <p className="tabular mt-2 text-3xl font-semibold" style={{ color: accent }}>
+        <p className="tabular font-display mt-2 text-4xl" style={{ color: accent }}>
           {formatSGD(value)}
         </p>
       </CardBody>

@@ -51,7 +51,7 @@ function TransactionsView() {
   return (
     <div className="grid gap-5">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("nav.transactions")}</h1>
+        <h1 className="font-display text-[2rem] leading-[1.15] tracking-tight">{t("nav.transactions")}</h1>
         <p className="mt-1 text-sm text-body">
           {t("tx.resultCount", { n: rows.length })} · {formatSGD(total)}
         </p>

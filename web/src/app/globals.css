@@ -1,59 +1,66 @@
 @import "tailwindcss";
 
 /*
-  Apple-inspired theme (from VoltAgent/awesome-design-md).
-  Clean iOS "grouped card" aesthetic: parchment page, white rounded cards,
-  near-black ink, a single Action-Blue accent, SF Pro system font, and iOS
-  system colors for semantics. Minimal chrome, restrained depth.
+  "Editorial Luxe" — a high-end, magazine-grade theme.
 
-  Token NAMES are kept stable so the whole app inherits the new look by value.
+  Inspired by the discipline of Linear's near-black surface ladder and restrained
+  single-accent system (VoltAgent/awesome-design-md), reinterpreted with an
+  editorial twist: a refined serif display (Instrument Serif) for big money
+  figures and titles, a clean grotesk body (Hanken Grotesk), a warm "paper"
+  light mode, a deep near-black dark mode, and a single lavender-indigo accent.
+
+  Token NAMES are kept stable so the whole app inherits the look by value.
 */
 @theme {
-  /* Brand / accent (Action Blue) */
-  --color-primary: #0066cc;
-  --color-primary-active: #0071e3;
-  --color-primary-pale: #e8f1fc;
+  /* Brand / accent — lavender-indigo, used scarcely and intentionally */
+  --color-primary: #5b54e0;
+  --color-primary-active: #4d44d6;
+  --color-primary-pale: #ecebfb;
   --color-on-primary: #ffffff;
 
-  /* Ink / text */
-  --color-ink: #1d1d1f;
-  --color-ink-deep: #003a8c;
-  --color-body: #3a3a3c;
-  --color-mute: #86868b;
+  /* Ink / text — warm near-black */
+  --color-ink: #1a1a22;
+  --color-ink-deep: #3a32b0;
+  --color-body: #4a4a55;
+  --color-mute: #8a8a96;
 
-  /* Surfaces */
+  /* Surfaces — warm paper canvas, white cards, warm hairlines */
   --color-canvas: #ffffff;
-  --color-canvas-soft: #f5f5f7;
-  --color-page: #f5f5f7;
-  --color-hairline: #e3e3e6;
+  --color-canvas-soft: #efece6;
+  --color-page: #f4f2ee;
+  --color-hairline: #e6e1d8;
 
-  /* Semantics (iOS system colors) */
-  --color-positive: #34c759;
-  --color-positive-deep: #248a3d;
-  --color-warning: #ff9500;
-  --color-warning-deep: #b25e00;
-  --color-negative: #ff3b30;
-  --color-negative-deep: #c4271d;
-  --color-accent-cyan: #5ac8fa;
-  --color-accent-orange: #ff9500;
+  /* Semantics */
+  --color-positive: #1f9d57;
+  --color-positive-deep: #157346;
+  --color-warning: #e0921a;
+  --color-warning-deep: #9a5e00;
+  --color-negative: #e0483d;
+  --color-negative-deep: #b4271d;
+  --color-accent-cyan: #3aa6c8;
+  --color-accent-orange: #e0921a;
 
   /* Pillar / chart palette */
-  --color-pillar-needs: #0066cc;
-  --color-pillar-wants: #ff9500;
-  --color-pillar-savings: #34c759;
+  --color-pillar-needs: #5b54e0;
+  --color-pillar-wants: #e0921a;
+  --color-pillar-savings: #1f9d57;
 
-  /* Radius — Apple cards ~18px; CTAs are pills; controls ~12px */
+  /* Radius */
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 18px;
+  --radius-lg: 16px;
   --radius-xl: 980px;
 
-  /* Fonts — native SF on Apple, graceful fallback elsewhere */
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
-    var(--font-inter), system-ui, sans-serif;
+  /* Fonts — editorial serif display + clean grotesk body */
+  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-instrument), Georgia, "Times New Roman", serif;
 
-  /* Depth — soft, restrained */
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.05);
+  /* Depth — soft, layered, premium */
+  --shadow-card: 0 1px 2px rgba(20, 18, 40, 0.04),
+    0 10px 30px -14px rgba(28, 24, 60, 0.16);
+  --shadow-lift: 0 2px 4px rgba(20, 18, 40, 0.06),
+    0 18px 44px -18px rgba(28, 24, 60, 0.26);
 }
 
 html,
@@ -61,26 +68,39 @@ body {
   height: 100%;
 }
 
-/* Dark mode — iOS dark "grouped" surfaces; tokens override by value so all
-   utilities (bg-canvas, text-ink, …) adopt dark automatically. */
+/* Dark mode — near-black "midnight" surfaces with a faint cool tint. */
 html.dark {
   color-scheme: dark;
-  --color-primary: #2997ff;
-  --color-primary-active: #0a84ff;
-  --color-primary-pale: #0a2540;
-  --color-on-primary: #ffffff;
+  --color-primary: #8b86f7;
+  --color-primary-active: #9d99ff;
+  --color-primary-pale: #1d1b3a;
+  --color-on-primary: #0b0a16;
 
-  --color-ink: #f5f5f7;
-  --color-ink-deep: #9fd0ff;
-  --color-body: #d6d6da;
-  --color-mute: #8e8e93;
+  --color-ink: #f4f4f7;
+  --color-ink-deep: #b7b2ff;
+  --color-body: #c5c5d0;
+  --color-mute: #82828f;
 
-  --color-canvas: #1c1c1e;
-  --color-canvas-soft: #2c2c2e;
-  --color-page: #000000;
-  --color-hairline: #38383a;
+  --color-canvas: #131318;
+  --color-canvas-soft: #1d1d24;
+  --color-page: #08080b;
+  --color-hairline: #2a2a33;
 
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.4);
+  --color-positive: #3ad07e;
+  --color-positive-deep: #6fe3a4;
+  --color-warning: #f5b13d;
+  --color-warning-deep: #ffcf85;
+  --color-negative: #ff6b61;
+  --color-negative-deep: #ff9b93;
+
+  --color-pillar-needs: #8b86f7;
+  --color-pillar-wants: #f5b13d;
+  --color-pillar-savings: #3ad07e;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.55),
+    0 14px 36px -18px rgba(0, 0, 0, 0.75);
+  --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.6),
+    0 22px 50px -20px rgba(0, 0, 0, 0.85);
 }
 
 body {
@@ -88,7 +108,61 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.011em;
+}
+
+/* Atmospheric page wash — a faint accent glow at the top, fixed behind content. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      1100px 560px at 50% -8%,
+      color-mix(in srgb, var(--color-primary) 14%, transparent),
+      transparent 68%
+    ),
+    radial-gradient(
+      900px 500px at 100% 0%,
+      color-mix(in srgb, var(--color-accent-cyan) 9%, transparent),
+      transparent 60%
+    );
+}
+html.dark body::before {
+  background:
+    radial-gradient(
+      1100px 560px at 50% -8%,
+      color-mix(in srgb, var(--color-primary) 18%, transparent),
+      transparent 64%
+    ),
+    radial-gradient(
+      900px 520px at 100% 0%,
+      color-mix(in srgb, var(--color-accent-cyan) 10%, transparent),
+      transparent 58%
+    );
+}
+
+/* Fine grain overlay for tactile, printed-paper depth. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+html.dark body::after {
+  opacity: 0.04;
+}
+
+/* Display serif — money figures, hero numbers, page titles. */
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
 }
 
 /* Money figures and tabular data line up cleanly. */
@@ -97,14 +171,27 @@ body {
   font-feature-settings: "tnum";
 }
 
+/* Staggered reveal for dashboard sections on first paint. */
+.stagger > * {
+  animation: fade-in-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.stagger > *:nth-child(1) { animation-delay: 0.02s; }
+.stagger > *:nth-child(2) { animation-delay: 0.07s; }
+.stagger > *:nth-child(3) { animation-delay: 0.12s; }
+.stagger > *:nth-child(4) { animation-delay: 0.17s; }
+.stagger > *:nth-child(5) { animation-delay: 0.22s; }
+.stagger > *:nth-child(6) { animation-delay: 0.27s; }
+.stagger > *:nth-child(7) { animation-delay: 0.32s; }
+.stagger > *:nth-child(n + 8) { animation-delay: 0.36s; }
+
 /* Upload-feedback affordances */
 @keyframes cta-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(0, 102, 204, 0.35);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 38%, transparent);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(0, 102, 204, 0);
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-primary) 0%, transparent);
   }
 }
 .cta-pulse {
@@ -113,7 +200,7 @@ body {
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -121,11 +208,12 @@ body {
   }
 }
 .fade-in-up {
-  animation: fade-in-up 0.35s ease-out both;
+  animation: fade-in-up 0.4s ease-out both;
 }
 @media (prefers-reduced-motion: reduce) {
   .cta-pulse,
-  .fade-in-up {
+  .fade-in-up,
+  .stagger > * {
     animation: none;
   }
 }
@@ -136,6 +224,8 @@ body {
     border: 1px solid var(--color-hairline);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
+    transition: box-shadow 0.25s ease, border-color 0.25s ease,
+      transform 0.25s ease;
   }
 
   .btn-primary {
@@ -143,10 +233,14 @@ body {
     color: var(--color-on-primary);
     border-radius: var(--radius-xl);
     font-weight: 600;
-    transition: background 0.15s ease;
+    box-shadow: 0 1px 2px rgba(20, 18, 40, 0.12),
+      0 8px 20px -10px color-mix(in srgb, var(--color-primary) 70%, transparent);
+    transition: background 0.15s ease, transform 0.15s ease,
+      box-shadow 0.2s ease;
   }
   .btn-primary:hover {
     background: var(--color-primary-active);
+    transform: translateY(-1px);
   }
   .btn-secondary {
     background: var(--color-canvas-soft);

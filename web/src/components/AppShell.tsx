@@ -34,7 +34,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="grid size-9 place-items-center rounded-[var(--radius-md)] bg-primary text-on-primary">
               <Wallet className="size-5" />
             </span>
-            <span className="text-base font-semibold tracking-tight" suppressHydrationWarning>
+            <span className="font-display text-xl tracking-tight" suppressHydrationWarning>
               {t("brand")}
             </span>
           </Link>

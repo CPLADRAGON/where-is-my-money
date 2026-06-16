@@ -86,11 +86,11 @@ function ImportView() {
 
   return (
     <div className="grid gap-6">
-      <section>
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+      <section className="stagger">
+        <h1 className="font-display text-[2.75rem] leading-[1.04] tracking-tight sm:text-[3.5rem]">
           {t("import.title")}
         </h1>
-        <p className="mt-2 max-w-2xl text-body">{t("import.subtitle")}</p>
+        <p className="mt-3 max-w-2xl text-lg text-body">{t("import.subtitle")}</p>
       </section>
 
       <Dropzone onFile={handleCsv} />

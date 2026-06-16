@@ -22,7 +22,10 @@ export function CardTitle({
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={cn("text-sm font-semibold text-mute tracking-wide", className)}
+      className={cn(
+        "text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-mute",
+        className
+      )}
       {...props}
     />
   );

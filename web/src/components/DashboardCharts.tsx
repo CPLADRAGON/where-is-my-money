@@ -25,11 +25,11 @@ import {
 import { formatSGD, formatPct, formatMonthLabel } from "@/lib/utils";
 import type { SubRow, MonthlyPoint, BudgetRow } from "@/lib/selectors";
 
-const SUB_COLOR = "#3b82f6";
-const INCOME_COLOR = "#6366f1"; // indigo — visible on both light and dark
-const SPENT_COLOR = "#f43f5e"; // rose
-const SAVED_COLOR = "#10b981"; // emerald
-const TARGET_COLOR = "#cbd5e1"; // slate-300, neutral reference bar
+const SUB_COLOR = "#5b54e0";
+const INCOME_COLOR = "#7c75ee"; // lavender-indigo — visible on both light and dark
+const SPENT_COLOR = "#e0483d"; // editorial red
+const SAVED_COLOR = "#1f9d57"; // emerald
+const TARGET_COLOR = "#cbc6ba"; // warm neutral reference bar
 
 const num = (v: unknown): number => {
   const n = Number(v);

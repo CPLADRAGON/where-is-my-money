@@ -89,16 +89,16 @@ export const SAVINGS_DEFAULT: { pillar: Pillar; sub: string } = {
  *  Vibrant, accessible hues chosen to read on both light (#fff) and dark
  *  (#1c1c1e) card surfaces. */
 export const BUCKET_COLORS: Record<BudgetBucket, string> = {
-  Needs: "#3b82f6", // blue
-  Wants: "#f59e0b", // amber
-  Savings: "#10b981", // emerald
+  Needs: "#5b54e0", // lavender-indigo
+  Wants: "#e0921a", // gold
+  Savings: "#1f9d57", // emerald
 };
-export const TRANSFER_COLOR = "#94a3b8"; // slate
+export const TRANSFER_COLOR = "#9a9aa6"; // slate
 
 /** Colors per spending pillar (for pie/sub-category charts). */
 export const PILLAR_COLORS: Record<Pillar, string> = {
-  "Fixed Needs": "#3b82f6",
-  "Variable Wants": "#f59e0b",
+  "Fixed Needs": "#5b54e0",
+  "Variable Wants": "#e0921a",
   Transfer: TRANSFER_COLOR,
 };
 
