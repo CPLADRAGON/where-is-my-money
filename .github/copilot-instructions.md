@@ -20,6 +20,8 @@ Key files:
   live in `web/src/app/globals.css`). Transaction browsing
   lives on `/transactions` (filterable; URL-encoded filters via `lib/filters.ts`); `/review`
   redirects there with the "Needs review" preset, and the Dashboard charts/rows deep-link into it.
+  The Dashboard's month/range selector is **URL-driven** (`/dashboard?month=YYYY-MM` or
+  `?range=custom&from=&to=`) so it survives drill-in + Back/Forward and is shareable.
   `/recurring` detects subscriptions/bills + frequent merchants from `lib/recurring.ts` (group by
   merchant, ≥3 months); items deep-link to `/transactions?q=<merchant>`. The Dashboard also shows a
   **Spending Insights** "What changed" card (`lib/insights.ts` + `components/InsightsCard.tsx`)

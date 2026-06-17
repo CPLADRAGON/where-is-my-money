@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { HydrationGate } from "@/components/HydrationGate";
 import { Card, CardBody, CardTitle } from "@/components/Card";
@@ -49,6 +49,30 @@ export default function Page() {
 function DashboardView() {
   const t = useT();
   const router = useRouter();
+  const sp = useSearchParams();
+
+  // Range lives in the URL so it survives drill-in + Back/Forward and is shareable.
+  const monthParam = sp.get("month");
+  const isCustom = sp.get("range") === "custom";
+  const start = sp.get("from") ?? "";
+  const end = sp.get("to") ?? "";
+  const rangeMode = monthParam ?? (isCustom ? "custom" : "all");
+
+  function setRange(next: { mode: string; from?: string; to?: string }) {
+    const p = new URLSearchParams();
+    if (next.mode === "custom") {
+      p.set("range", "custom");
+      const f = next.from ?? start;
+      const tt = next.to ?? end;
+      if (f) p.set("from", f);
+      if (tt) p.set("to", tt);
+    } else if (next.mode !== "all") {
+      p.set("month", next.mode);
+    }
+    const qs = p.toString();
+    router.replace(qs ? `/dashboard?${qs}` : "/dashboard", { scroll: false });
+  }
+
   function drill(extra: Record<string, string>) {
     const p = new URLSearchParams(extra);
     if (rangeMode !== "all" && rangeMode !== "custom") p.set("month", rangeMode);
@@ -64,10 +88,6 @@ function DashboardView() {
   const months = useStore((s) => s.months);
   const detectedIncome = useStore((s) => s.detectedIncome);
   const incomeOverrides = useStore((s) => s.incomeOverrides);
-
-  const [rangeMode, setRangeMode] = useState<string>("all");
-  const [start, setStart] = useState("");
-  const [end, setEnd] = useState("");
 
   const range: DateRange = useMemo(() => {
     if (rangeMode === "all") return { mode: "all" };
@@ -106,7 +126,7 @@ function DashboardView() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h1 className="font-display text-[2rem] leading-[1.15] tracking-tight">{t("dashboard.title")}</h1>
         <div className="flex flex-wrap items-center gap-2">
-          <Select value={rangeMode} onChange={(e) => setRangeMode(e.target.value)}>
+          <Select value={rangeMode} onChange={(e) => setRange({ mode: e.target.value })}>
             <option value="all">{t("range.all")}</option>
             {months.map((m) => (
               <option key={m} value={m}>
@@ -120,14 +140,14 @@ function DashboardView() {
               <input
                 type="date"
                 value={start}
-                onChange={(e) => setStart(e.target.value)}
+                onChange={(e) => setRange({ mode: "custom", from: e.target.value, to: end })}
                 className="h-10 rounded-[var(--radius-md)] border border-hairline bg-canvas px-2 text-sm"
               />
               <span className="text-mute">→</span>
               <input
                 type="date"
                 value={end}
-                onChange={(e) => setEnd(e.target.value)}
+                onChange={(e) => setRange({ mode: "custom", from: start, to: e.target.value })}
                 className="h-10 rounded-[var(--radius-md)] border border-hairline bg-canvas px-2 text-sm"
               />
             </>
