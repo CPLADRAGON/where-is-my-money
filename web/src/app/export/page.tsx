@@ -241,7 +241,7 @@ const ShareCard = React.forwardRef<
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: 20, fontWeight: 600, opacity: 0.9, fontFamily: "var(--font-sora), system-ui, sans-serif" }}>
-          Money Tracker
+          Where&apos;s My Money?
         </span>
         <span style={{ fontSize: 14, fontWeight: 700, color: sub }}>{rangeLabel}</span>
       </div>

@@ -16,12 +16,12 @@ const display = Sora({
 });
 
 export const metadata: Metadata = {
-  title: "Money Tracker — Personal Expense Dashboard",
+  title: "Where's My Money? — Personal Expense Dashboard",
   description:
     "Import a bank CSV, categorize your spending, and see a clean dashboard. Fully private — your data never leaves your browser.",
   appleWebApp: {
     capable: true,
-    title: "Money Tracker",
+    title: "Where's My Money?",
     statusBarStyle: "default",
   },
 };

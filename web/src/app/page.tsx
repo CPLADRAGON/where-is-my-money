@@ -19,6 +19,8 @@ import { Card, CardBody } from "@/components/Card";
 import { useStore } from "@/lib/store";
 import { useImportStore } from "@/lib/importStore";
 import { parseDetected } from "@/lib/banks";
+import { isSpending } from "@/lib/taxonomy";
+import type { ParseResult } from "@/lib/types";
 import { BANK_GUIDES, DEMO_CSV } from "@/lib/demo";
 import { formatSGD } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
@@ -37,9 +39,21 @@ function ImportView() {
   const router = useRouter();
   const t = useT();
   const importData = useStore((s) => s.importData);
+  const mergeData = useStore((s) => s.mergeData);
+  const hasData = useStore((s) => s.transactions.length > 0);
   const setPending = useImportStore((s) => s.setPending);
+  const [replaceExisting, setReplaceExisting] = useState(false);
   const [summary, setSummary] = useState<
-    | { stats: ReturnType<typeof parseDetected>["stats"]; bank: string; months: number }
+    | {
+        added: number;
+        skipped: number;
+        total: number;
+        months: number;
+        autoCategorized: number;
+        needsReview: number;
+        income: number;
+        transfers: number;
+      }
     | null
   >(null);
   const [error, setError] = useState<string | null>(null);
@@ -52,31 +66,72 @@ function ImportView() {
     }
   }, [summary]);
 
-  function handleCsv(text: string, fileName: string) {
+  function handleFiles(
+    files: { text: string; name: string }[],
+    forceReplace = false
+  ) {
     setError(null);
     setSummary(null);
     setParsing(true);
     // Defer so the spinner can paint before the (sync) parse runs.
     setTimeout(() => {
       try {
-        const result = parseDetected(text);
-        if (result.transactions.length === 0) {
-          setPending(text, fileName);
+        const parsed: ParseResult[] = [];
+        const unknown: { text: string; name: string }[] = [];
+        for (const f of files) {
+          try {
+            const res = parseDetected(f.text);
+            if (res.transactions.length === 0) unknown.push(f);
+            else parsed.push(res);
+          } catch (e) {
+            if (e instanceof Error && e.message === "UNKNOWN_BANK") unknown.push(f);
+            else throw e;
+          }
+        }
+
+        const replace = forceReplace || replaceExisting || !hasData;
+        const before = replace ? 0 : useStore.getState().transactions.length;
+        const totalParsed = parsed.reduce((n, r) => n + r.transactions.length, 0);
+
+        if (parsed.length > 0) {
+          let rest = parsed;
+          if (replace) {
+            importData(parsed[0]);
+            rest = parsed.slice(1);
+          }
+          for (const r of rest) mergeData(r);
+
+          const state = useStore.getState();
+          const after = state.transactions.length;
+          const added = after - before;
+          const needsReview = state.transactions.filter(
+            (tx) => tx.provenance === "default"
+          ).length;
+          const transfers = state.transactions.filter(
+            (tx) => !isSpending(tx.pillar)
+          ).length;
+          const income = Object.values(state.detectedIncome).reduce((a, b) => a + b, 0);
+          setSummary({
+            added,
+            skipped: Math.max(0, totalParsed - added),
+            total: after,
+            months: state.months.length,
+            autoCategorized: after - needsReview,
+            needsReview,
+            income,
+            transfers,
+          });
+        }
+
+        if (unknown.length > 0) {
+          setPending(unknown[0].text, unknown[0].name);
           router.push("/import/map");
           return;
         }
-        importData(result);
-        setSummary({
-          stats: result.stats,
-          bank: result.bankLabel,
-          months: result.months.length,
-        });
-      } catch (e) {
-        if (e instanceof Error && e.message === "UNKNOWN_BANK") {
-          setPending(text, fileName);
-          router.push("/import/map");
-          return;
+        if (parsed.length === 0) {
+          setError(t("error.read"));
         }
+      } catch {
         setError(t("error.read"));
       } finally {
         setParsing(false);
@@ -93,10 +148,25 @@ function ImportView() {
         <p className="mt-3 max-w-2xl text-lg text-body">{t("import.subtitle")}</p>
       </section>
 
-      <Dropzone onFile={handleCsv} />
+      <Dropzone onFiles={handleFiles} />
+
+      {hasData && (
+        <label className="flex items-center gap-2 text-sm text-body">
+          <input
+            type="checkbox"
+            checked={replaceExisting}
+            onChange={(e) => setReplaceExisting(e.target.checked)}
+            className="size-4 accent-[var(--color-primary)]"
+          />
+          {t("import.replaceExisting")}
+        </label>
+      )}
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button variant="secondary" onClick={() => handleCsv(DEMO_CSV, "demo.csv")}>
+        <Button
+          variant="secondary"
+          onClick={() => handleFiles([{ text: DEMO_CSV, name: "demo.csv" }], true)}
+        >
           <Sparkles className="size-4" /> {t("import.tryDemo")}
         </Button>
         <span className="inline-flex items-center gap-1.5 text-sm text-mute">
@@ -121,32 +191,37 @@ function ImportView() {
         <Card ref={summaryRef} className="fade-in-up overflow-hidden">
           <div className="flex items-center gap-2 bg-positive/10 px-5 py-3 text-sm font-semibold text-positive-deep">
             <CheckCircle2 className="size-5" />{" "}
-            {t("import.importedN", { n: summary.stats.total, bank: summary.bank })}
+            {t("import.mergedSummary", {
+              added: summary.added,
+              skipped: summary.skipped,
+              total: summary.total,
+              months: summary.months,
+            })}
           </div>
           <CardBody className="grid gap-5">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Stat label={t("stat.transactions")} value={String(summary.stats.total)} />
+              <Stat label={t("stat.transactions")} value={String(summary.total)} />
               <Stat label={t("stat.months")} value={String(summary.months)} />
               <Stat
                 label={t("stat.autocat")}
-                value={String(summary.stats.autoCategorized)}
+                value={String(summary.autoCategorized)}
               />
-              <Stat label={t("stat.needReview")} value={String(summary.stats.defaulted)} tone="warn" />
+              <Stat label={t("stat.needReview")} value={String(summary.needsReview)} tone="warn" />
             </div>
             <div className="text-sm text-body">
               {t("import.detectedIncome")}{" "}
-              <strong className="tabular">{formatSGD(summary.stats.income)}</strong>
-              {summary.stats.transfers > 0 && (
-                <> · {t("import.transfersExcluded", { n: summary.stats.transfers })}</>
+              <strong className="tabular">{formatSGD(summary.income)}</strong>
+              {summary.transfers > 0 && (
+                <> · {t("import.transfersExcluded", { n: summary.transfers })}</>
               )}
             </div>
 
-            <Stepper needsReview={summary.stats.defaulted} />
+            <Stepper needsReview={summary.needsReview} />
 
             <div className="flex flex-wrap gap-3">
               <Button className="cta-pulse" onClick={() => router.push("/transactions?review=1")}>
-                {summary.stats.defaulted > 0
-                  ? t("import.reviewN", { n: summary.stats.defaulted })
+                {summary.needsReview > 0
+                  ? t("import.reviewN", { n: summary.needsReview })
                   : t("import.reviewAll")}
                 <ArrowRight className="size-4" />
               </Button>

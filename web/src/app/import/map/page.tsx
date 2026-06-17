@@ -39,6 +39,8 @@ function MapView() {
   const fileName = useImportStore((s) => s.pendingFileName);
   const clearPending = useImportStore((s) => s.clearPending);
   const importData = useStore((s) => s.importData);
+  const mergeData = useStore((s) => s.mergeData);
+  const hasData = useStore((s) => s.transactions.length > 0);
   const addPreset = useStore((s) => s.addPreset);
 
   const [headerRow, setHeaderRow] = useState(0);
@@ -152,7 +154,8 @@ function MapView() {
       if (savePreset && presetName) {
         addPreset({ ...mapping, name: presetName });
       }
-      importData(res);
+      if (hasData) mergeData(res);
+      else importData(res);
       clearPending();
       router.push("/review");
     } catch {

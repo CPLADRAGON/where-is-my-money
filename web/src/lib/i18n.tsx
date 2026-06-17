@@ -55,7 +55,7 @@ export function useT() {
 }
 
 const EN = {
-  "brand": "Money Tracker",
+  "brand": "Where's My Money?",
   "nav.import": "Import",
   "nav.review": "Review",
   "nav.dashboard": "Dashboard",
@@ -71,6 +71,9 @@ const EN = {
   "import.private": "100% private & offline",
   "import.parsing": "Reading and categorizing your transactions…",
   "import.importedN": "Imported {n} transactions from {bank}",
+  "import.mergedSummary": "Added {added} · skipped {skipped} duplicates · {total} transactions across {months} months",
+  "import.replaceExisting": "Replace existing data",
+  "import.filesNeedMapping": "{n} file(s) need manual column mapping.",
   "import.detectedIncome": "Detected income:",
   "import.transfersExcluded": "{n} transfers excluded from spending",
   "import.reviewN": "Review {n} uncategorized",
@@ -235,7 +238,7 @@ const EN = {
 };
 
 const ZH: Record<keyof typeof EN, string> = {
-  "brand": "记账助手",
+  "brand": "花哪了",
   "nav.import": "导入",
   "nav.review": "核对",
   "nav.dashboard": "仪表盘",
@@ -251,6 +254,9 @@ const ZH: Record<keyof typeof EN, string> = {
   "import.private": "100% 私密 · 离线",
   "import.parsing": "正在读取并归类你的交易…",
   "import.importedN": "已从 {bank} 导入 {n} 笔交易",
+  "import.mergedSummary": "新增 {added} · 跳过 {skipped} 条重复 · 共 {total} 笔，{months} 个月",
+  "import.replaceExisting": "替换现有数据",
+  "import.filesNeedMapping": "{n} 个文件需要手动映射列。",
   "import.detectedIncome": "检测到的收入：",
   "import.transfersExcluded": "{n} 笔转账已从支出中排除",
   "import.reviewN": "核对 {n} 笔未归类",

@@ -5,21 +5,23 @@ import { UploadCloud } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function Dropzone({
-  onFile,
+  onFiles,
 }: {
-  onFile: (text: string, fileName: string) => void;
+  onFiles: (files: { text: string; name: string }[]) => void;
 }) {
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = useCallback(
-    async (files: FileList | null) => {
-      const file = files?.[0];
-      if (!file) return;
-      const text = await file.text();
-      onFile(text, file.name);
+    async (fileList: FileList | null) => {
+      const files = Array.from(fileList ?? []);
+      if (files.length === 0) return;
+      const read = await Promise.all(
+        files.map(async (f) => ({ text: await f.text(), name: f.name }))
+      );
+      onFiles(read);
     },
-    [onFile]
+    [onFiles]
   );
 
   return (
@@ -51,15 +53,16 @@ export function Dropzone({
         <UploadCloud className="size-7" />
       </span>
       <div>
-        <p className="text-lg font-bold">Drop your bank CSV here</p>
+        <p className="text-lg font-bold">Drop one or more bank CSVs here</p>
         <p className="mt-1 text-sm text-body">
-          or click to choose a file — it&apos;s processed entirely in your browser
+          or click to choose files — processed entirely in your browser
         </p>
       </div>
       <input
         ref={inputRef}
         type="file"
         accept=".csv,text/csv"
+        multiple
         className="hidden"
         onChange={(e) => void handleFiles(e.target.files)}
       />
