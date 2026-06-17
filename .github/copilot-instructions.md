@@ -6,8 +6,9 @@ This is a **personal-finance project**. The goal is to turn raw OCBC bank statem
 a **Monthly Expense Tracker**. There are now **two implementations** of the same idea:
 
 1. A **Python generator** (`build_tracker.py`) that emits a static Excel workbook.
-2. A **client-side web app** (`web/`) — an interactive Next.js successor that imports a CSV,
-   lets you categorize uncategorized rows, and shows a live dashboard. See `web/README.md`.
+2. A **client-side web app** (`web/`) — an interactive Next.js successor (branded **"Where's My
+   Money?"** / 中文 **"花哪了"**) that imports one or more bank CSVs, lets you categorize
+   uncategorized rows, and shows a live dashboard. See `web/README.md`.
 
 Key files:
 
@@ -27,7 +28,10 @@ Key files:
   (set in Settings, stored as `budgets: Record<sub, cap>`) drive a Dashboard **"Budget watch"** card
   (`lib/budgets.ts` + `components/BudgetWatchCard.tsx`): spend-vs-cap progress bars normalized per
   month over the selected range, with over-budget alerts. Navigation uses the top header on desktop
-  and a **fixed bottom tab bar on mobile** (`AppShell.tsx`; top nav is `hidden sm:flex`).
+  and a **fixed bottom tab bar on mobile** (`AppShell.tsx`; top nav is `hidden sm:flex`). Imports
+  **merge by default** (multiple files at once or incrementally): transactions union by their
+  deterministic fingerprint `id` and income is deduped by fingerprinted salary deposit
+  (`lib/merge.ts`, store `mergeData` + `incomeDeposits`); a "Replace all" toggle resets instead.
 - **Both implementations now share the same model** (kept in sync): spending is **Fixed Needs /
   Variable Wants** only; **savings is an outcome** (Income − Spending); **transfers**
   (savings/investment + person-to-person) are auto-detected and **excluded from spending**; and

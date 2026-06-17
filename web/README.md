@@ -1,10 +1,10 @@
-# Money Tracker — Web App
+# Where's My Money? — Web App
 
-A fully client-side personal expense tracker. Import a bank CSV, categorize
-spending into **Fixed Needs / Variable Wants** (savings is an outcome — Income −
-Spending — not a spend bucket), and explore a clean dashboard. **Your data never
-leaves your browser** — parsing, storage, and charts all run locally; nothing is
-uploaded.
+A fully client-side personal expense tracker. Import one or more bank CSVs,
+categorize spending into **Fixed Needs / Variable Wants** (savings is an outcome —
+Income − Spending — not a spend bucket), and explore a clean dashboard. **Your
+data never leaves your browser** — parsing, storage, and charts all run locally;
+nothing is uploaded.
 
 This is the interactive successor to the Python `build_tracker.py` + Excel
 workflow in the repository root.
@@ -41,9 +41,14 @@ npx tsx scripts/smoke-parse.ts   # parser parity test vs the sample OCBC CSV
 
 ## Features
 
-- **Import** — drag-drop a CSV. OCBC statements are auto-detected; any other bank
-  works via the **column-mapping wizard**, which can save reusable presets.
-  Includes per-bank "how to download your CSV" guidance and a **demo dataset**.
+- **Import** — drag-drop **one or more** CSVs. OCBC statements are auto-detected;
+  any other bank works via the **column-mapping wizard**, which can save reusable
+  presets. Includes per-bank "how to download your CSV" guidance and a **demo
+  dataset**.
+- **Multi-statement merge** — importing more statements **merges by default**
+  (de-duplicated: transactions union by a stable fingerprint, income deduped by
+  deposit), so the whole app spans your full history. A **"Replace all"** toggle
+  resets instead; the summary reports *added · skipped duplicates · totals*.
 - **Transactions** — one filterable list (pillar, sub-category, month, type,
   "Needs review", search, sort; filters live in the URL). View and recategorize
   inline with dependent Pillar -> Sub-Category dropdowns, provenance badges, bulk

@@ -190,6 +190,13 @@ All items above are implemented. Post-roadmap features:
   drill-in (`web/src/lib/budgets.ts`, `web/src/components/BudgetWatchCard.tsx`).
 - Mobile nav fix: the top nav overflowed narrow phone viewports; navigation now
   uses a fixed bottom tab bar on mobile (`sm:hidden`), top nav is desktop-only.
+- Rebrand: the web app is now **"Where's My Money?"** (EN) / **"花哪了"** (ZH) —
+  brand string, page + PWA title, manifest, and share-card wordmark.
+- Multi-statement merge: import multiple bank statements (multi-file + incremental),
+  de-duplicated (transactions union by fingerprint id; income deduped by deposit id
+  via `web/src/lib/merge.ts` + store `mergeData`/`incomeDeposits`). Merge by default
+  with a "Replace all" toggle; the mapping wizard merges too. Spec/plan:
+  `docs/superpowers/specs|plans/2026-06-17-multi-statement-merge-and-rebrand*.md`.
 - "Editorial Luxe" visual overhaul: a high-end theme reinterpreting the Linear
   design system (VoltAgent/awesome-design-md) — Instrument Serif display for money
   figures + titles, Hanken Grotesk body, warm-paper light / near-black dark modes,
