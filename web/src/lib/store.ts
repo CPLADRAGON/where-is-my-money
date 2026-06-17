@@ -4,9 +4,10 @@ import { create } from "zustand";
 import { persist, createJSONStorage, type StateStorage } from "zustand/middleware";
 import { get as idbGet, set as idbSet, del as idbDel } from "idb-keyval";
 import { categorize } from "./categorize";
+import { mergeTransactions, recomputeIncome, mergeMonths } from "./merge";
 import { TARGETS, type BudgetBucket, type Pillar } from "./taxonomy";
 import type { ColumnMapping } from "./banks/types";
-import type { IncomeByMonth, ParseResult, Transaction } from "./types";
+import type { IncomeByMonth, IncomeDeposit, ParseResult, Transaction } from "./types";
 
 type Cat = { pillar: Pillar; sub: string };
 
@@ -35,11 +36,14 @@ interface AppState {
   targets: Record<BudgetBucket, number>;
   /** Optional monthly spending cap per sub-category (SGD). 0/absent = no cap. */
   budgets: Record<string, number>;
+  /** Union of imported salary deposits, keyed by deposit id. */
+  incomeDeposits: Record<string, { month: string; amount: number }>;
 
   /** Hydration flag so the UI can wait for IndexedDB. */
   _hydrated: boolean;
 
   importData: (result: ParseResult) => void;
+  mergeData: (result: ParseResult) => void;
   setCategory: (
     id: string,
     pillar: Pillar,
@@ -86,6 +90,12 @@ function recategorize(t: Transaction, s: Pick<AppState, "overrides" | "learned">
   return { ...t, pillar: r.pillar, sub: r.sub, provenance: r.provenance };
 }
 
+function depositsToMap(
+  deposits: IncomeDeposit[]
+): Record<string, { month: string; amount: number }> {
+  return Object.fromEntries(deposits.map((d) => [d.id, { month: d.month, amount: d.amount }]));
+}
+
 export const useStore = create<AppState>()(
   persist(
     (set) => ({
@@ -99,6 +109,7 @@ export const useStore = create<AppState>()(
       presets: [],
       targets: { ...TARGETS },
       budgets: {},
+      incomeDeposits: {},
       _hydrated: false,
 
       importData: (result) =>
@@ -107,11 +118,36 @@ export const useStore = create<AppState>()(
           const transactions = result.transactions.map((t) =>
             recategorize(t, s)
           );
+          const incomeDeposits = depositsToMap(result.incomeDeposits);
           return {
             transactions,
             months: result.months,
             bankLabel: result.bankLabel,
-            detectedIncome: result.incomeByMonth,
+            incomeDeposits,
+            detectedIncome: recomputeIncome(incomeDeposits),
+          };
+        }),
+
+      mergeData: (result) =>
+        set((s) => {
+          const next = { ...s };
+          const unioned = mergeTransactions(s.transactions, result.transactions);
+          const transactions = unioned.map((t) => recategorize(t, next));
+          const incomeDeposits = {
+            ...s.incomeDeposits,
+            ...depositsToMap(result.incomeDeposits),
+          };
+          const bankLabel = !s.bankLabel
+            ? result.bankLabel
+            : s.bankLabel === result.bankLabel
+            ? s.bankLabel
+            : "Multiple sources";
+          return {
+            transactions,
+            months: mergeMonths(s.months, result.months),
+            bankLabel,
+            incomeDeposits,
+            detectedIncome: recomputeIncome(incomeDeposits),
           };
         }),
 
@@ -206,6 +242,7 @@ export const useStore = create<AppState>()(
           incomeOverrides: {},
           overrides: {},
           learned: {},
+          incomeDeposits: {},
         }),
     }),
     {

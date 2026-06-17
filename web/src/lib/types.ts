@@ -25,11 +25,20 @@ export interface Transaction {
 /** Per-month detected/overridden income. */
 export type IncomeByMonth = Record<string, number>;
 
+/** A fingerprinted income (salary) deposit, used to de-duplicate on merge. */
+export interface IncomeDeposit {
+  id: string;
+  month: string;
+  amount: number;
+}
+
 /** Result of parsing a CSV through a bank adapter. */
 export interface ParseResult {
   transactions: Transaction[];
   incomeByMonth: IncomeByMonth;
   months: string[];
+  /** Fingerprinted salary deposits (for income de-dup on merge). */
+  incomeDeposits: IncomeDeposit[];
   /** Which bank adapter produced this (or "custom"/"generic"). */
   bankId: string;
   bankLabel: string;

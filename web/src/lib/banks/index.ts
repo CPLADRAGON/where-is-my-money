@@ -1,7 +1,7 @@
 import { categorize, merchantKeyFrom } from "../categorize";
 import type { Pillar } from "../taxonomy";
 import { isValidPair, isSpending } from "../taxonomy";
-import type { ParseResult, Transaction } from "../types";
+import type { IncomeDeposit, ParseResult, Transaction } from "../types";
 import { ocbcAdapter } from "./ocbc";
 import { parseWithMapping } from "./generic";
 import type { BankAdapter, ColumnMapping, RawRow } from "./types";
@@ -43,7 +43,9 @@ export function buildParseResult(
   const incomeRe = opts.incomeKeywords ?? DEFAULT_INCOME_KEYWORDS;
   const transactions: Transaction[] = [];
   const incomeByMonth: Record<string, number> = {};
+  const incomeDeposits: IncomeDeposit[] = [];
   const seen = new Map<string, number>();
+  const seenIncome = new Map<string, number>();
 
   let defaulted = 0;
   let transfers = 0;
@@ -54,6 +56,11 @@ export function buildParseResult(
     if (row.income > 0 && row.spend === 0) {
       if (incomeRe.test(row.description)) {
         incomeByMonth[month] = (incomeByMonth[month] ?? 0) + row.income;
+        const baseKey = `${row.date}|${row.income.toFixed(2)}|${row.description}`;
+        const k = seenIncome.get(baseKey) ?? 0;
+        seenIncome.set(baseKey, k + 1);
+        const depId = hash(k === 0 ? baseKey : `${baseKey}#${k}`);
+        incomeDeposits.push({ id: depId, month, amount: row.income });
       }
       continue;
     }
@@ -109,6 +116,7 @@ export function buildParseResult(
   return {
     transactions,
     incomeByMonth,
+    incomeDeposits,
     months,
     bankId,
     bankLabel,
