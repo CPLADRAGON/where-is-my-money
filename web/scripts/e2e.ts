@@ -11,15 +11,16 @@ import { chromium } from "playwright";
 
   await page.goto("http://localhost:3000/", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: /Try demo data/i }).click();
-  await page.getByText(/Imported from/i).waitFor({ timeout: 10000 });
-  const summary = await page.getByText(/Imported from/i).textContent();
+  await page.getByText(/across \d+ months/i).waitFor({ timeout: 10000 });
+  const summary = await page.getByText(/across \d+ months/i).textContent();
   console.log("summary:", summary?.trim());
 
-  // Go to review and verify rows render.
-  await page.getByRole("link", { name: /Review/i }).first().click();
-  await page.waitForURL("**/review");
+  // Go to transactions (review preset) and verify rows render.
+  await page.getByRole("link", { name: /Transactions/i }).first().click();
+  await page.waitForURL("**/transactions**");
+  await page.waitForTimeout(500);
   const rowCount = await page.locator("table tbody tr").count();
-  console.log("review rows:", rowCount);
+  console.log("transaction rows:", rowCount);
 
   // Go to dashboard, wait for charts (svg) to render.
   await page.getByRole("link", { name: /Dashboard/i }).first().click();

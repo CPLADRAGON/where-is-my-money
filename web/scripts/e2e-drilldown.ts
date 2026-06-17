@@ -9,7 +9,7 @@ import { chromium } from "playwright";
 
   await page.goto("http://localhost:3000/", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: /Try demo data/i }).click();
-  await page.getByText(/Imported \d+ transactions/i).waitFor({ timeout: 10000 });
+  await page.getByText(/across \d+ months/i).waitFor({ timeout: 10000 });
 
   // /review redirects to /transactions?review=1
   await page.goto("http://localhost:3000/review", { waitUntil: "networkidle" });
