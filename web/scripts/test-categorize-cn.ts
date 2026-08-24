@@ -1,0 +1,14 @@
+import { categorize, merchantKeyFrom } from "../src/lib/categorize";
+let pass = 0, fail = 0;
+const ok = (c: boolean, m: string) => { console.log((c ? "PASS" : "FAIL") + " -", m); c ? pass++ : fail++; };
+const r1 = categorize("美团外卖订单", "美团", {});
+ok(r1.sub === "Dining Out/Cafes", "美团 -> Dining Out/Cafes");
+const r2 = categorize("滴滴出行", "滴滴", {});
+ok(r2.sub === "Transport", "滴滴 -> Transport");
+const r3 = categorize("拼多多订单", "拼多多", {});
+ok(r3.sub === "Shopping", "拼多多 -> Shopping");
+const r4 = categorize("饿了么订单", "饿了么", {});
+ok(r4.sub === "Dining Out/Cafes", "饿了么 -> Dining Out/Cafes");
+ok(merchantKeyFrom("美团外卖订单") === "美团外卖订单", "CJK merchant key preserved (not stripped)");
+console.log(`\n${pass} passed, ${fail} failed`);
+if (fail > 0) process.exit(1);

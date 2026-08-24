@@ -21,6 +21,12 @@ const RULES: { re: RegExp; pillar: Pillar; sub: string }[] = [
   { re: /SHOPEE|LAZADA|UNIQLO|H&M|MALL|WATSON|GUARDIAN|DAISO|MUJI|DECATHLON|POPULAR|CHALLENGER|COURTS/i, pillar: "Variable Wants", sub: "Shopping" },
   { re: /CATHAY|GOLDEN VILLAGE|GV |SHAW|CINEMA|KARAOKE|KTV|ARCADE|STEAM /i, pillar: "Variable Wants", sub: "Entertainment/Hobbies" },
   { re: /AIRLINE|AIRASIA|SCOOT|SINGAPORE AIRLINES|HOTEL|AGODA|BOOKING\.COM|EXPEDIA|KLOOK|AIRBNB/i, pillar: "Variable Wants", sub: "Travel" },
+  // Chinese merchants (WeChat / Alipay / Meituan) -> canonical sub-categories.
+  { re: /美团|饿了么|星巴克|喜茶|瑞幸|麦当劳|肯德基|茶百道|蜜雪冰城|外卖|火锅|烧烤|奶茶|餐厅|餐饮/, pillar: "Variable Wants", sub: "Dining Out/Cafes" },
+  { re: /滴滴|高德|地铁|公交|铁路|12306|哈啰|打车|出租车|共享单车/, pillar: "Fixed Needs", sub: "Transport" },
+  { re: /拼多多|淘宝|京东|唯品会|得物|优衣库|无印良品|天猫/, pillar: "Variable Wants", sub: "Shopping" },
+  { re: /优酷|腾讯视频|爱奇艺|网易云|QQ音乐|哔哩哔哩|喜马拉雅|芒果TV/, pillar: "Variable Wants", sub: "Subscriptions" },
+  { re: /携程|去哪儿|飞猪|同程|机票|酒店/, pillar: "Variable Wants", sub: "Travel" },
 ];
 
 /** Investment / savings platforms — money here is a transfer, not spending. */
@@ -116,7 +122,7 @@ export function merchantKeyFrom(description: string): string {
     .replace(/\b\d{4,}\b/g, " ") // long ref numbers
     .replace(/\bSGD?\b|\bMYR\b/g, " ")
     .replace(/\bDEBIT PURCHASE\b|\bFAST PAYMENT\b|\bFUND TRANSFER\b|\bPAYMENT\/TRANSFER\b|\bNETS QR\b|\bBILL PAYMENT\b|\bINB\b/g, " ")
-    .replace(/[^A-Z0-9 ]+/g, " ")
+    .replace(/[^A-Z0-9一-鿿 ]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 
