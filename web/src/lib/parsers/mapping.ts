@@ -1,16 +1,45 @@
 import Papa from "papaparse";
-import type { ColumnMapping, RawRow } from "./types";
 import { normalizeText, parseAmount, parseDate, splitLines } from "./helpers";
+
+/** A row after a bank adapter/column-mapping has normalized the CSV shape. */
+export interface RawRow {
+  /** ISO date YYYY-MM-DD. */
+  date: string;
+  description: string;
+  /** Positive spend amount (0 if this row is income/other). */
+  spend: number;
+  /** Positive income/deposit amount (0 if this row is spend). */
+  income: number;
+  /** Optional pre-existing category from the source file. */
+  existingCategory?: string;
+}
+
+export type DateFormat = "DD/MM/YYYY" | "MM/DD/YYYY" | "YYYY-MM-DD" | "DD-MM-YYYY";
+
+/** User-defined mapping for an unknown CSV (column-mapping wizard output). */
+export interface ColumnMapping {
+  /** 0-based index of the header row within the file. */
+  headerRowIndex: number;
+  dateField: string;
+  dateFormat: DateFormat;
+  descriptionFields: string[];
+  amountMode: "single" | "split";
+  /** single mode */
+  amountField?: string;
+  signConvention?: "negative-is-spend" | "positive-is-spend";
+  /** split mode */
+  debitField?: string;
+  creditField?: string;
+  /** optional */
+  categoryField?: string;
+}
 
 /**
  * Build normalized rows from an arbitrary CSV using a user-defined column
  * mapping (produced by the column-mapping wizard). Handles a single signed
  * amount column or separate debit/credit columns.
  */
-export function parseWithMapping(
-  csvText: string,
-  mapping: ColumnMapping
-): RawRow[] {
+export function parseWithMapping(csvText: string, mapping: ColumnMapping): RawRow[] {
   const lines = splitLines(csvText);
   const sliced = lines.slice(mapping.headerRowIndex).join("\n");
   const parsed = Papa.parse<Record<string, string>>(sliced, {

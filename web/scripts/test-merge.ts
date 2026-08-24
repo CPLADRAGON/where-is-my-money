@@ -1,4 +1,4 @@
-import { parseDetected } from "../src/lib/banks";
+import { parseDetected } from "../src/lib/parsers";
 import { DEMO_CSV } from "../src/lib/demo";
 import { mergeTransactions, recomputeIncome, mergeMonths } from "../src/lib/merge";
 import type { Transaction } from "../src/lib/types";

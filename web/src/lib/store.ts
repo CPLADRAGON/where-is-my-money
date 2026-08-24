@@ -6,7 +6,7 @@ import { get as idbGet, set as idbSet, del as idbDel } from "idb-keyval";
 import { categorize } from "./categorize";
 import { mergeTransactions, recomputeIncome, mergeMonths } from "./merge";
 import { TARGETS, type BudgetBucket, type Pillar } from "./taxonomy";
-import type { ColumnMapping } from "./banks/types";
+import type { ColumnMapping } from "./parsers/mapping";
 import type { IncomeByMonth, IncomeDeposit, ParseResult, Transaction } from "./types";
 
 type Cat = { pillar: Pillar; sub: string };

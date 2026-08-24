@@ -1,7 +1,7 @@
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import type { Direction, NormalizedRow } from "./types";
-import { parseAmount, splitLines } from "../banks/helpers";
+import { parseAmount, splitLines } from "./helpers";
 
 /**
  * WeChat Pay (微信支付账单) — `.xlsx` and `.csv`.

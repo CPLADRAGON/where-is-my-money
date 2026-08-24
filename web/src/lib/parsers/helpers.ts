@@ -1,4 +1,4 @@
-import type { DateFormat } from "./types";
+import type { DateFormat } from "./mapping";
 
 /** Parse a money string like "6,037.08" or "(12.50)" to a number. */
 export function parseAmount(raw: string | undefined | null): number {

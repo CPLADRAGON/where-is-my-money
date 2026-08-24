@@ -1,6 +1,6 @@
 import Papa from "papaparse";
 import type { Direction, NormalizedRow } from "./types";
-import { normalizeText, parseAmount, parseDate, splitLines } from "../banks/helpers";
+import { normalizeText, parseAmount, parseDate, splitLines } from "./helpers";
 import { detectTransfer, merchantKeyFrom } from "../categorize";
 
 const INCOME_RE = /GIRO - SALARY|\bSALARY\b|INFI\s*NEON|TECHNOLOG\s*SALA/i;

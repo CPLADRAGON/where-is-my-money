@@ -1,6 +1,6 @@
 import Papa from "papaparse";
 import type { Direction, NormalizedRow } from "./types";
-import { parseAmount, splitLines } from "../banks/helpers";
+import { parseAmount, splitLines } from "./helpers";
 
 /**
  * Meituan bill (美团账单) — UTF-8 with BOM. Header row (a line starting with

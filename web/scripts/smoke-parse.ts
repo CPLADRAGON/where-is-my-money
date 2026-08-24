@@ -1,4 +1,4 @@
-import { parseDetected } from "../src/lib/banks/index";
+import { parseDetected } from "../src/lib/parsers";
 import { readFileSync } from "fs";
 import { join } from "path";
 

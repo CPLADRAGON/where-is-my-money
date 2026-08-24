@@ -10,10 +10,8 @@ import { Button } from "@/components/Button";
 import { Select } from "@/components/Select";
 import { useImportStore } from "@/lib/importStore";
 import { useStore } from "@/lib/store";
-import { previewCsv } from "@/lib/banks/generic";
-import { parseMapped } from "@/lib/banks";
-import type { ColumnMapping, DateFormat } from "@/lib/banks/types";
-import { splitLines } from "@/lib/banks/helpers";
+import { parseMapped, previewCsv, type ColumnMapping, type DateFormat } from "@/lib/parsers";
+import { splitLines } from "@/lib/parsers/helpers";
 import { formatSGD } from "@/lib/utils";
 
 const DATE_FORMATS: DateFormat[] = [

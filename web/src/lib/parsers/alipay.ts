@@ -1,6 +1,6 @@
 import Papa from "papaparse";
 import type { Direction, NormalizedRow } from "./types";
-import { parseAmount, splitLines } from "../banks/helpers";
+import { parseAmount, splitLines } from "./helpers";
 
 /**
  * Alipay transaction detail export (支付宝交易记录明细). Decoded from GB18030
