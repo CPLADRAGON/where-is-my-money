@@ -7,6 +7,7 @@ import {
   type SpendingPillar,
 } from "./taxonomy";
 import type { IncomeByMonth, Transaction } from "./types";
+import { toDisplay, type Rates } from "./currency";
 
 export interface DateRange {
   mode: "all" | "month" | "custom";
@@ -39,29 +40,45 @@ export function transferRows(tx: Transaction[]): Transaction[] {
   return tx.filter((t) => !isSpending(t.pillar));
 }
 
-/** Total spent = sum of spending rows (excludes transfers). */
-export function totalSpent(tx: Transaction[]): number {
-  return spendingRows(tx).reduce((a, t) => a + t.amount, 0);
+/** Total spent = sum of spending rows (excludes transfers), in the view currency. */
+export function totalSpent(
+  tx: Transaction[],
+  rates: Rates = { SGD: 1 },
+  display: string = "SGD"
+): number {
+  return spendingRows(tx).reduce((a, t) => a + toDisplay(t, rates, display), 0);
 }
 
 /** Total moved via transfers (savings/investment + personal). */
-export function totalTransfers(tx: Transaction[]): number {
-  return transferRows(tx).reduce((a, t) => a + t.amount, 0);
+export function totalTransfers(
+  tx: Transaction[],
+  rates: Rates = { SGD: 1 },
+  display: string = "SGD"
+): number {
+  return transferRows(tx).reduce((a, t) => a + toDisplay(t, rates, display), 0);
 }
 
 /** Money explicitly moved to savings/investment accounts. */
-export function totalInvested(tx: Transaction[]): number {
+export function totalInvested(
+  tx: Transaction[],
+  rates: Rates = { SGD: 1 },
+  display: string = "SGD"
+): number {
   return tx
     .filter((t) => t.pillar === "Transfer" && /Savings/.test(t.sub))
-    .reduce((a, t) => a + t.amount, 0);
+    .reduce((a, t) => a + toDisplay(t, rates, display), 0);
 }
 
-export function spentByPillar(tx: Transaction[]): Record<SpendingPillar, number> {
+export function spentByPillar(
+  tx: Transaction[],
+  rates: Rates = { SGD: 1 },
+  display: string = "SGD"
+): Record<SpendingPillar, number> {
   const out = { "Fixed Needs": 0, "Variable Wants": 0 } as Record<
     SpendingPillar,
     number
   >;
-  for (const t of spendingRows(tx)) out[t.pillar as SpendingPillar] += t.amount;
+  for (const t of spendingRows(tx)) out[t.pillar as SpendingPillar] += toDisplay(t, rates, display);
   return out;
 }
 
@@ -71,10 +88,14 @@ export interface SubRow {
   amount: number;
 }
 
-export function spentBySub(tx: Transaction[]): SubRow[] {
+export function spentBySub(
+  tx: Transaction[],
+  rates: Rates = { SGD: 1 },
+  display: string = "SGD"
+): SubRow[] {
   const map = new Map<string, number>();
   for (const t of spendingRows(tx)) {
-    map.set(t.sub, (map.get(t.sub) ?? 0) + t.amount);
+    map.set(t.sub, (map.get(t.sub) ?? 0) + toDisplay(t, rates, display));
   }
   const rows: SubRow[] = [];
   for (const pillar of SPENDING_PILLARS) {
@@ -120,9 +141,11 @@ export interface BudgetRow {
  */
 export function budgetBreakdown(
   tx: Transaction[],
-  income: number
+  income: number,
+  rates: Rates = { SGD: 1 },
+  display: string = "SGD"
 ): { rows: BudgetRow[]; savings: number; savingsRate: number } {
-  const byPillar = spentByPillar(tx);
+  const byPillar = spentByPillar(tx, rates, display);
   const needs = byPillar["Fixed Needs"];
   const wants = byPillar["Variable Wants"];
   const spent = needs + wants;
@@ -166,11 +189,13 @@ export function monthlyTrend(
   tx: Transaction[],
   months: string[],
   detected: IncomeByMonth,
-  overrides: IncomeByMonth
+  overrides: IncomeByMonth,
+  rates: Rates = { SGD: 1 },
+  display: string = "SGD"
 ): MonthlyPoint[] {
   const spentMap = new Map<string, number>();
   for (const t of spendingRows(tx)) {
-    spentMap.set(t.month, (spentMap.get(t.month) ?? 0) + t.amount);
+    spentMap.set(t.month, (spentMap.get(t.month) ?? 0) + toDisplay(t, rates, display));
   }
   return months.map((m) => {
     const inc = overrides[m] ?? detected[m] ?? 0;

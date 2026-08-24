@@ -63,7 +63,7 @@ function buildRow(
   const t = ts.trim();
   const dir = dirRaw.trim();
   if (!t || !dir) return null;
-  const amount = Math.abs(parseAmount(amountRaw));
+  const amount = Math.abs(parseAmount(amountRaw == null ? "" : String(amountRaw)));
   if (amount === 0) return null;
   const paymentMethod = pm.trim();
   const tags: string[] = [];

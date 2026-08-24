@@ -1,0 +1,10 @@
+import { totalSpent } from "../src/lib/selectors";
+import type { Transaction } from "../src/lib/types";
+const tx = (p: Partial<Transaction>): Transaction => ({ id: "1", date: "2026-08-01", month: "2026-08", description: "x", merchantKey: "x", amount: 10, pillar: "Variable Wants", sub: "Shopping", provenance: "rule", ...p });
+let pass = 0, fail = 0;
+const ok = (c: boolean, m: string) => { console.log((c ? "PASS" : "FAIL") + " -", m); c ? pass++ : fail++; };
+const rates = { CNY: 2, SGD: 1 };
+ok(totalSpent([tx({ amount: 100, currency: "CNY" })], rates, "SGD") === 200, "CNY spent converted to SGD view");
+ok(totalSpent([tx({ amount: 8.4 })], rates, "SGD") === 8.4, "SGD passthrough (no currency defaults to SGD)");
+console.log(`\n${pass} passed, ${fail} failed`);
+if (fail > 0) process.exit(1);

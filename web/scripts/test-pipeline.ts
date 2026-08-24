@@ -19,7 +19,7 @@ const t = out.transactions[0];
 ok(t.sub === "Dining Out/Cafes", "美团外卖 -> Dining Out/Cafes via extended rules");
 ok(t.currency === "CNY" && t.nativeAmount === 105.79, "native currency + amount preserved");
 ok(t.source === "ALIPAY" && t.paymentMethod === "花呗", "source + paymentMethod carried onto Transaction");
-ok(t.tags?.includes("bnpl"), "花呗 -> bnpl tag on Transaction");
+ok(t.tags?.includes("bnpl") === true, "花呗 -> bnpl tag on Transaction");
 ok(out.transactions[1].pillar === "Transfer", "不计收支 -> Transfer transaction (excluded from spending)");
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);
