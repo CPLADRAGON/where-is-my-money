@@ -48,12 +48,23 @@ export function parseWechatXlsx(bytes: ArrayBuffer): NormalizedRow[] {
     const c = aoa[i];
     if (!Array.isArray(c) || !c[0]) continue;
     const row = buildRow(
-      String(c[0] ?? ""), String(c[1] ?? ""), String(c[2] ?? ""), String(c[3] ?? ""),
+      xlsDate(c[0]), String(c[1] ?? ""), String(c[2] ?? ""), String(c[3] ?? ""),
       String(c[4] ?? ""), c[5] ?? "", String(c[6] ?? ""), String(c[8] ?? "")
     );
     if (row) rows.push(row);
   }
   return rows;
+}
+
+/** Convert an Excel date serial (e.g. 46250.8822) to `YYYY-MM-DD HH:mm:ss`, or pass a string through. */
+function xlsDate(v: unknown): string {
+  if (typeof v === "number" && v > 20000 && v < 90000) {
+    const ms = Math.round((v - 25569) * 86400 * 1000); // 25569 = epoch offset (1900 date system)
+    const d = new Date(ms);
+    const p = (n: number) => String(n).padStart(2, "0");
+    return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}`;
+  }
+  return String(v ?? "");
 }
 
 function buildRow(

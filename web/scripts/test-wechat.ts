@@ -27,5 +27,16 @@ XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
 const buf = XLSX.write(wb, { type: "array", bookType: "xlsx" }) as ArrayBuffer;
 const xrows = parseWechatXlsx(buf);
 ok(xrows.length === 1 && xrows[0].direction === "INCOME" && xrows[0].amount === 1.01, "xlsx parsed as income");
+// Real .xlsx stores the timestamp as an Excel date serial (number), not a string.
+const wb2 = XLSX.utils.book_new();
+const ws2 = XLSX.utils.aoa_to_sheet([
+  ["微信支付账单明细"], ["微信昵称：[X]"],
+  ["----------------------微信支付", ""],
+  ["交易时间", "交易类型", "交易对方", "商品", "收/支", "金额(元)", "支付方式", "当前状态", "交易单号", "商户单号", "备注"],
+  [46250.8822, "微信红包", "Des Rosiers", "/", "收入", "1.01", "/", "已存入零钱", "ORDER-A", "ORDER-B", "/"],
+]);
+XLSX.utils.book_append_sheet(wb2, ws2, "Sheet1");
+const serial = parseWechatXlsx(XLSX.write(wb2, { type: "array", bookType: "xlsx" }) as ArrayBuffer);
+ok(serial[0].date === "2026-08-16" && serial[0].direction === "INCOME", "xlsx serial date -> ISO date");
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);

@@ -31,15 +31,24 @@ function classified(source: Source, encoding: string): ClassifyResult {
 }
 
 function detectFromLines(lines: string[]): Source | null {
-  const head = lines.join("\n").slice(0, 6000);
+  const head = lines.join("\n");
+  // Data-header signatures — scan EVERY line, since the header can sit well past a
+  // long preamble (Alipay's is at line ~23 after 8 tip lines). 交易分类 = Alipay,
+  // 交易类型 = WeChat (the discriminator).
+  for (const l of lines) {
+    if (/^\s*交易时间,交易分类,交易对方/.test(l)) return "ALIPAY";
+    if (/^\s*交易时间,交易类型,交易对方/.test(l)) return "WECHAT";
+    if (/^\s*交易创建时间,交易成功时间/.test(l)) return "MEITUAN";
+  }
+  // Preamble/title signatures (fallback when the data header isn't the first to match).
+  if (/支付宝交易记录明细/.test(head)) return "ALIPAY";
+  if (/美团交易账单明细/.test(head)) return "MEITUAN";
+  if (/微信支付账单明细/.test(head)) return "WECHAT";
   if (
     /transaction date/i.test(head) &&
     /withdrawals?\s*\(sgd\)/i.test(head) &&
     /deposits?\s*\(sgd\)/i.test(head)
   ) return "OCBC";
-  if (/支付宝交易记录明细|交易时间,交易对方,对方账号/.test(head)) return "ALIPAY";
-  if (/美团交易账单明细|交易创建时间,交易成功时间/.test(head)) return "MEITUAN";
-  if (/微信支付账单明细|交易时间,交易类型,交易对方/.test(head)) return "WECHAT";
   return null;
 }
 
