@@ -55,6 +55,7 @@ export function parseBatch(files: IngestFile[]): BatchResult {
         bankId: cls.bankId,
         bankLabel: cls.bankLabel,
         encoding: cls.encoding,
+        name: f.name,
         rows,
       });
     } catch (e) {

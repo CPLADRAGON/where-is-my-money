@@ -18,9 +18,9 @@ import { Button } from "@/components/Button";
 import { Card, CardBody } from "@/components/Card";
 import { useStore } from "@/lib/store";
 import { useImportStore } from "@/lib/importStore";
-import { parseDetected } from "@/lib/banks";
+import { parseBatch, bridgeToApp } from "@/lib/parsers";
+import { decodeBytes } from "@/lib/parsers/encoding";
 import { isSpending } from "@/lib/taxonomy";
-import type { ParseResult } from "@/lib/types";
 import { BANK_GUIDES, DEMO_CSV } from "@/lib/demo";
 import { formatSGD } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
@@ -56,6 +56,11 @@ function ImportView() {
       }
     | null
   >(null);
+  const [perFile, setPerFile] = useState<
+    | { name: string; source: string; encoding: string; rows: number }[]
+    | null
+  >(null);
+  const [errorFiles, setErrorFiles] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [parsing, setParsing] = useState(false);
   const summaryRef = useRef<HTMLDivElement>(null);
@@ -67,7 +72,7 @@ function ImportView() {
   }, [summary]);
 
   function handleFiles(
-    files: { text: string; name: string }[],
+    files: { bytes: ArrayBuffer; name: string }[],
     forceReplace = false
   ) {
     setError(null);
@@ -76,30 +81,30 @@ function ImportView() {
     // Defer so the spinner can paint before the (sync) parse runs.
     setTimeout(() => {
       try {
-        const parsed: ParseResult[] = [];
-        const unknown: { text: string; name: string }[] = [];
-        for (const f of files) {
-          try {
-            const res = parseDetected(f.text);
-            if (res.transactions.length === 0) unknown.push(f);
-            else parsed.push(res);
-          } catch (e) {
-            if (e instanceof Error && e.message === "UNKNOWN_BANK") unknown.push(f);
-            else throw e;
-          }
-        }
+        const batch = parseBatch(files);
+        const parsed = batch.files;
+        const unknown = batch.unknown;
+        setErrorFiles(batch.errorFiles.map((e) => e.name));
+        setPerFile(
+          parsed.map((r) => ({
+            name: r.name ?? "file",
+            source: r.bankLabel,
+            encoding: r.encoding,
+            rows: r.rows.length,
+          }))
+        );
 
         const replace = forceReplace || replaceExisting || !hasData;
         const before = replace ? 0 : useStore.getState().transactions.length;
-        const totalParsed = parsed.reduce((n, r) => n + r.transactions.length, 0);
+        const totalParsed = parsed.reduce((n, r) => n + r.rows.length, 0);
 
         if (parsed.length > 0) {
           let rest = parsed;
           if (replace) {
-            importData(parsed[0]);
+            importData(bridgeToApp([parsed[0]]));
             rest = parsed.slice(1);
           }
-          for (const r of rest) mergeData(r);
+          for (const r of rest) mergeData(bridgeToApp([r]));
 
           const state = useStore.getState();
           const after = state.transactions.length;
@@ -123,12 +128,17 @@ function ImportView() {
           });
         }
 
+        if (batch.errorFiles.length > 0) {
+          setError(t("error.someFiles", { n: batch.errorFiles.length }));
+        }
+
         if (unknown.length > 0) {
-          setPending(unknown[0].text, unknown[0].name);
+          const { text } = decodeBytes(unknown[0].bytes);
+          setPending(text, unknown[0].name);
           router.push("/import/map");
           return;
         }
-        if (parsed.length === 0) {
+        if (parsed.length === 0 && batch.errorFiles.length === 0) {
           setError(t("error.read"));
         }
       } catch {
@@ -165,7 +175,12 @@ function ImportView() {
       <div className="flex flex-wrap items-center gap-3">
         <Button
           variant="secondary"
-          onClick={() => handleFiles([{ text: DEMO_CSV, name: "demo.csv" }], true)}
+          onClick={() =>
+            handleFiles(
+              [{ bytes: new TextEncoder().encode(DEMO_CSV).buffer, name: "demo.csv" }],
+              true
+            )
+          }
         >
           <Sparkles className="size-4" /> {t("import.tryDemo")}
         </Button>
@@ -199,6 +214,31 @@ function ImportView() {
             })}
           </div>
           <CardBody className="grid gap-5">
+            {perFile && perFile.length > 0 && (
+              <div className="text-sm text-body">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mute">
+                  {t("import.perFileTitle")}
+                </p>
+                <ul className="space-y-1">
+                  {perFile.map((f) => (
+                    <li
+                      key={f.name}
+                      className="flex items-center justify-between gap-3 rounded-[var(--radius-md)] bg-canvas-soft px-3 py-2"
+                    >
+                      <span className="truncate font-medium">{f.name}</span>
+                      <span className="shrink-0 text-mute">
+                        {f.source} · {f.encoding} · {f.rows} {t("import.rows")}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {errorFiles.length > 0 && (
+              <p className="text-sm text-negative-deep">
+                {t("error.someFiles", { n: errorFiles.length })} {errorFiles.join(", ")}
+              </p>
+            )}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <Stat label={t("stat.transactions")} value={String(summary.total)} />
               <Stat label={t("stat.months")} value={String(summary.months)} />

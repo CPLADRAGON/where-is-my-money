@@ -20,6 +20,7 @@ export interface SourceFileResult {
   bankId: string;    // 'ocbc' | 'wechat' | 'alipay' | 'meituan'
   bankLabel: string; // human name
   encoding: string;  // 'utf-8' | 'gb18030' | 'xlsx' | 'utf-16'
+  name?: string;     // original file name (set by parseBatch)
   rows: NormalizedRow[];
 }
 

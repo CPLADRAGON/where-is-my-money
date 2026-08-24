@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 export function Dropzone({
   onFiles,
 }: {
-  onFiles: (files: { text: string; name: string }[]) => void;
+  onFiles: (files: { bytes: ArrayBuffer; name: string }[]) => void;
 }) {
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -17,7 +17,7 @@ export function Dropzone({
       const files = Array.from(fileList ?? []);
       if (files.length === 0) return;
       const read = await Promise.all(
-        files.map(async (f) => ({ text: await f.text(), name: f.name }))
+        files.map(async (f) => ({ bytes: await f.arrayBuffer(), name: f.name }))
       );
       onFiles(read);
     },
@@ -53,7 +53,7 @@ export function Dropzone({
         <UploadCloud className="size-7" />
       </span>
       <div>
-        <p className="text-lg font-bold">Drop one or more bank CSVs here</p>
+        <p className="text-lg font-bold">Drop one or more bank CSV / Excel files here</p>
         <p className="mt-1 text-sm text-body">
           or click to choose files — processed entirely in your browser
         </p>
@@ -61,7 +61,7 @@ export function Dropzone({
       <input
         ref={inputRef}
         type="file"
-        accept=".csv,text/csv"
+        accept=".csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx"
         multiple
         className="hidden"
         onChange={(e) => void handleFiles(e.target.files)}
