@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Trash2, AlertTriangle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { HydrationGate } from "@/components/HydrationGate";
@@ -9,6 +9,7 @@ import { Button } from "@/components/Button";
 import { CategoryPicker } from "@/components/CategoryPicker";
 import { useStore } from "@/lib/store";
 import { BUDGET_BUCKETS, SPENDING_PILLARS, CATEGORIES, type Pillar } from "@/lib/taxonomy";
+import { useCurrencyStore, fetchRates } from "@/lib/currency";
 import { formatMonthLabel, formatPct } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
 
@@ -37,12 +38,44 @@ function SettingsView() {
   const budgets = useStore((s) => s.budgets);
   const setBudget = useStore((s) => s.setBudget);
   const clearAll = useStore((s) => s.clearAll);
+  const displayCurrency = useCurrencyStore((s) => s.displayCurrency);
+  const setDisplayCurrency = useCurrencyStore((s) => s.setDisplayCurrency);
+
+  useEffect(() => {
+    void fetchRates();
+  }, []);
 
   const learnedEntries = Object.entries(learned);
 
   return (
     <div className="grid gap-5">
       <h1 className="font-display text-[2rem] leading-[1.15] tracking-tight">{t("settings.title")}</h1>
+
+      {/* View currency */}
+      <Card>
+        <CardBody>
+          <CardTitle>{t("settings.viewCurrency")}</CardTitle>
+          <div className="mt-3 flex items-center gap-3">
+            <select
+              value={displayCurrency}
+              onChange={(e) => {
+                setDisplayCurrency(e.target.value);
+                void fetchRates();
+              }}
+              className="h-10 rounded-[var(--radius-md)] border border-hairline bg-canvas px-3 text-sm"
+            >
+              {["SGD", "CNY"].map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+            <span className="text-sm text-mute">
+              {displayCurrency === "SGD" ? "S$" : "¥"}
+            </span>
+          </div>
+        </CardBody>
+      </Card>
 
       {/* Targets */}
       <Card>

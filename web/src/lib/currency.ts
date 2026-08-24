@@ -53,3 +53,19 @@ export function toDisplay(
 ): number {
   return convert(t.amount, t.currency ?? "SGD", display, rates);
 }
+
+/** Static fallback used when the live FX fetch is unavailable (offline). */
+const FALLBACK: Rates = { SGD: 1, CNY: 0.186 };
+
+/** Fetch CNY/SGD (and others) from a public free API; on failure, cache the fallback. */
+export async function fetchRates(): Promise<void> {
+  try {
+    const res = await fetch("https://open.er-api.com/v6/latest/SGD");
+    if (!res.ok) throw new Error("bad status");
+    const data = await res.json();
+    const rates: Rates = { SGD: 1, ...(data?.rates ?? {}) };
+    useCurrencyStore.getState().setRates(rates);
+  } catch {
+    useCurrencyStore.getState().setRates(FALLBACK);
+  }
+}
