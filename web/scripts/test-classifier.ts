@@ -1,0 +1,15 @@
+import { classifyFile } from "../src/lib/parsers/classifier";
+const enc = new TextEncoder();
+let pass = 0, fail = 0;
+const ok = (c: boolean, m: string) => { console.log((c ? "PASS" : "FAIL") + " -", m); c ? pass++ : fail++; };
+const alipay = new TextEncoder().encode("支付宝交易记录明细查询\n交易时间,交易对方,对方账号,商品说明,收/支,金额\n");
+const ocbc = enc.encode("Transaction History\nTransaction date,Value date,Description,Withdrawals(SGD),Deposits(SGD)\n");
+const wechat = enc.encode("微信支付账单明细\n交易时间,交易类型,交易对方\n");
+const meituan = enc.encode("美团交易账单明细列表\n交易创建时间,交易成功时间\n");
+ok(classifyFile(alipay.buffer, "alipay.csv").source === "ALIPAY", "alipay detected");
+ok(classifyFile(ocbc.buffer, "ocbc.csv").source === "OCBC", "ocbc detected");
+ok(classifyFile(wechat.buffer, "wechat.csv").source === "WECHAT", "wechat detected");
+ok(classifyFile(meituan.buffer, "meituan.csv").source === "MEITUAN", "meituan detected");
+ok(classifyFile(new Uint8Array([0x00]).buffer, "junk.bin").kind === "unknown", "unknown -> junk.bin");
+console.log(`\n${pass} passed, ${fail} failed`);
+if (fail > 0) process.exit(1);
