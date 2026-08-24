@@ -1,4 +1,5 @@
 import type { Pillar } from "./taxonomy";
+import type { Source } from "./parsers/types";
 
 /** How a transaction got its category — drives the provenance badge. */
 export type Provenance = "manual" | "learned" | "rule" | "default";
@@ -20,6 +21,14 @@ export interface Transaction {
   pillar: Pillar;
   sub: string;
   provenance: Provenance;
+  /** Multi-source / multi-currency fields (optional — set only by the parsers pipeline). */
+  source?: Source;
+  currency?: string;       // native currency, e.g. 'SGD' | 'CNY'; default SGD when absent
+  nativeAmount?: number;   // native value; === amount for SGD
+  counterparty?: string;
+  paymentMethod?: string;
+  tags?: string[];
+  isDuplicate?: boolean;
 }
 
 /** Per-month detected/overridden income. */
