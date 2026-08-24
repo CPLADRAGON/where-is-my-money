@@ -10,5 +10,14 @@ ok(r3.sub === "Shopping", "拼多多 -> Shopping");
 const r4 = categorize("饿了么订单", "饿了么", {});
 ok(r4.sub === "Dining Out/Cafes", "饿了么 -> Dining Out/Cafes");
 ok(merchantKeyFrom("美团外卖订单") === "美团外卖订单", "CJK merchant key preserved (not stripped)");
+// rules match the counterparty/merchant key, not just the raw description
+const t1 = categorize("火车票", "铁路12306", {});
+ok(t1.sub === "Travel", "12306/铁路 -> Travel (via counterparty)");
+const t2 = categorize("经营码交易", "鸡蛋灌饼", {});
+ok(t2.sub === "Dining Out/Cafes", "鸡蛋灌饼 (counterparty) -> Dining");
+const t3 = categorize("收钱码收款", "798酒馆3D影院唱吧", {});
+ok(t3.sub === "Entertainment/Hobbies", "影院/唱吧 (counterparty) -> Entertainment");
+const t4 = categorize("支付-高家园副台", "北京超市阳区全家爱超市1", {});
+ok(t4.sub === "Basic Groceries", "超市/全家 (counterparty) -> Groceries");
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);

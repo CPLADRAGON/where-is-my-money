@@ -27,15 +27,21 @@ export function parseAlipay(text: string): NormalizedRow[] {
     const amount = Math.abs(parseAmount(r["金额"]));
     if (amount === 0) continue;
     const pm = (r["收/付款方式"] ?? "").trim();
+    const rawCategory = (r["商品说明"] ?? "").trim();
+    let direction = mapDirection(r["收/支"]);
+    // 支出 + 转账/提现/充值 -> money moved to a person/account, not spending.
+    if (direction === "EXPENSE" && /转账|提现|充值|还款/.test(rawCategory)) {
+      direction = "TRANSFER";
+    }
     rows.push({
       source: "ALIPAY",
       currency: "CNY",
       date: ts.slice(0, 10),
       timestamp: ts,
-      rawCategory: (r["商品说明"] ?? "").trim(),
+      rawCategory,
       counterparty: (r["交易对方"] ?? "").trim(),
       amount,
-      direction: mapDirection(r["收/支"]),
+      direction,
       paymentMethod: pm,
       tags: /花呗/.test(pm) ? ["bnpl"] : [],
       sourceId: (r["交易订单号"] ?? "").trim() || undefined,

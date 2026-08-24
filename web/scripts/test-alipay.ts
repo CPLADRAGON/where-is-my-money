@@ -19,5 +19,12 @@ ok(rows[0].rawCategory.includes("美团外卖"), "rawCategory = 商品说明");
 ok(rows[0].counterparty.includes("深圳"), "counterparty = 交易对方");
 ok(rows[0].date === "2026-08-24", "date ISO");
 ok(rows[1].direction === "TRANSFER", "不计收支 -> TRANSFER");
+// 支出 + 转账 -> personal transfer, not spending
+const csv2 = `支付宝交易记录明细查询
+共1笔记录
+交易时间,交易对方,对方账号,商品说明,收/支,金额,收/付款方式,交易状态,交易订单号,商家订单号,备注
+2026-08-01 12:00:00,包容,sz@x,转账,支出,2000,余额宝,交易成功,O1,,`;
+const rows2 = parseAlipay(csv2);
+ok(rows2[0].direction === "TRANSFER", "转账 -> TRANSFER (excluded from spending)");
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);

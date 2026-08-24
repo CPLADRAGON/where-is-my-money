@@ -15,6 +15,11 @@ ok(rows[0].direction === "EXPENSE" && rows[0].amount === 8.4, "expense");
 ok(rows[0].counterparty === "OCTOBOX", "counterparty");
 ok(rows[0].paymentMethod === "零钱", "paymentMethod");
 ok(rows[0].date === "2026-08-15", "date");
+// 转账 (person-to-person) -> TRANSFER, excluded from spending
+const tzRows = parseWechatText(
+  `微信支付账单明细\n交易时间,交易类型,交易对方,商品,收/支,金额(元),支付方式,当前状态,交易单号,商户单号,备注\n2026-08-12 20:46:38,转账,陆云涛（驾校）6000,转账备注:微信转账,支出,50,零钱通,对方已收钱,O1,,`
+);
+ok(tzRows[0].direction === "TRANSFER", "微信转账 -> TRANSFER");
 // .xlsx path
 const wb = XLSX.utils.book_new();
 const ws = XLSX.utils.aoa_to_sheet([

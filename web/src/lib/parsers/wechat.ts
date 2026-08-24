@@ -96,8 +96,8 @@ function buildRow(
 
 function mapDirection(dirRaw: string, txType: string): Direction {
   if (dirRaw === "支出") {
-    // 充值/提现/零钱通存取/理财通 -> internal move, not spending
-    if (/充值|提现|零钱通|理财通|转入|转出/.test(txType)) return "TRANSFER";
+    // 充值/提现/零钱通存取/理财通/转账 -> money moved to a person or account, not spending
+    if (/充值|提现|零钱通|理财通|转入|转出|转账/.test(txType)) return "TRANSFER";
     return "EXPENSE";
   }
   if (dirRaw === "收入") return "INCOME";

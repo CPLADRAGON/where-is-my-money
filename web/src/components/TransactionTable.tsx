@@ -18,6 +18,17 @@ const PROV_TONE: Record<Provenance, "rule" | "learned" | "manual" | "default"> =
   default: "default",
 };
 
+const SOURCE_LABEL: Record<string, string> = {
+  OCBC: "OCBC",
+  WECHAT: "WeChat",
+  ALIPAY: "Alipay",
+  MEITUAN: "Meituan",
+};
+
+function sourceLabel(source?: string): string {
+  return source ? (SOURCE_LABEL[source] ?? source) : "—";
+}
+
 export function TransactionTable({ rows }: { rows: Transaction[] }) {
   const tr = useT();
   const setCategory = useStore((s) => s.setCategory);
@@ -116,7 +127,10 @@ export function TransactionTable({ rows }: { rows: Transaction[] }) {
                     {formatSGD(t.amount)}
                   </td>
                   <td className="px-3 py-2">
-                    <Badge tone={PROV_TONE[t.provenance]}>{t.provenance}</Badge>
+                    <div className="flex flex-col items-start gap-1">
+                      <Badge>{sourceLabel(t.source)}</Badge>
+                      <span className="text-[10px] font-medium text-mute">{t.provenance}</span>
+                    </div>
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex items-center gap-2">
