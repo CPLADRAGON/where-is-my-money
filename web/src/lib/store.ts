@@ -87,6 +87,12 @@ function recategorize(t: Transaction, s: Pick<AppState, "overrides" | "learned">
     learned: s.learned,
     fingerprint: t.id,
   });
+  // Never demote a Transfer we assigned (via parser/dedup) just because its
+  // description matches no rule; only a manual or learned recategorization
+  // changes a transfer. Recomputing from rules would double-count repayments.
+  if (t.pillar === "Transfer" && r.provenance !== "manual" && r.provenance !== "learned") {
+    return t;
+  }
   return { ...t, pillar: r.pillar, sub: r.sub, provenance: r.provenance };
 }
 
