@@ -32,7 +32,7 @@ const INVESTMENT_RE =
  * - Investment/savings platforms -> Savings / Investment.
  * - Person-to-person PayNow/FAST transfers (to a person, via Mobile) -> Personal Transfer.
  */
-function detectTransfer(description: string): { pillar: Pillar; sub: string } | null {
+export function detectTransfer(description: string): { pillar: Pillar; sub: string } | null {
   if (INVESTMENT_RE.test(description)) return SAVINGS_DEFAULT;
 
   const d = description.toUpperCase();
