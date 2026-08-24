@@ -124,6 +124,7 @@ export function TransactionTable({ rows }: { rows: Transaction[] }) {
                         compact
                         pillar={t.pillar}
                         sub={t.sub}
+                        uncategorized={t.provenance === "default"}
                         onChange={(p, s) => setCategory(t.id, p, s, remember)}
                       />
                       {!isSpending(t.pillar) && (

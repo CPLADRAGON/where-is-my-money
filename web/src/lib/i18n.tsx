@@ -154,6 +154,7 @@ const EN = {
   "review.notSpending": "not spending",
   "review.emptyTitle": "No transactions yet",
   "review.emptyBody": "Import a CSV to start categorizing.",
+  "category.select": "Select…",
 
   "settings.title": "Settings",
   "settings.targets": "Budget targets",
@@ -345,6 +346,7 @@ const ZH: Record<keyof typeof EN, string> = {
   "review.notSpending": "非消费",
   "review.emptyTitle": "暂无交易",
   "review.emptyBody": "导入 CSV 开始归类。",
+  "category.select": "选择…",
 
   "settings.title": "设置",
   "settings.targets": "预算目标",
