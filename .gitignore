@@ -3,6 +3,7 @@ TransactionHistory_*.csv
 MonthlyExpenseTracker.xlsx
 *.xlsx
 py_rows.json
+sample data/
 
 # --- Python ---
 __pycache__/
